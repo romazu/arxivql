@@ -1,0 +1,18 @@
+# .gitignore
+
+# Commit these:
+!pyproject.toml
+!poetry.lock
+
+# Don't commit these:
+__pycache__/
+*.py[cod]
+dist/
+*.egg-info/
+.env
+.venv/
+
+.idea
+
+scratch*
+backup*
