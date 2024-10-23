@@ -5,7 +5,7 @@ description = "A pythonic query builder for arXiv search API"
 authors = ["Roman Zubov <romazu@protonmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/romazu/arxiv-query"
+repository = "https://github.com/romazu/arxivql"
 keywords = ["arxiv", "api", "academic", "articles", "query", "dsl"]
 classifiers = [
     "Development Status :: 4 - Beta",

@@ -198,7 +198,7 @@ Example: In `astro-ph.HE`, the hierarchy is:
 - Category: `High Energy Astrophysical Phenomena`
 - Queryable ID: `astro-ph.HE`
 
-<img src="https://raw.githubusercontent.com/romazu/arxiv-query/main/assets/images/taxonomy_astro-ph.HE-fs8.png" width="35%">
+<img src="https://raw.githubusercontent.com/romazu/arxivql/main/assets/images/taxonomy_astro-ph.HE-fs8.png" width="35%">
 
 ## Group
 Groups constitute the top level of taxonomy, currently including:
@@ -219,12 +219,12 @@ Special cases:
    - When a group contains only one archive, they share the same name
    - Example: `q-fin.CP` category has `Quantitative Finance` → `Quantitative Finance` → `Computational Finance`
 
-   <img src="https://raw.githubusercontent.com/romazu/arxiv-query/main/assets/images/taxonomy_q-fin.CP-fs8.png" width="35%">
+   <img src="https://raw.githubusercontent.com/romazu/arxivql/main/assets/images/taxonomy_q-fin.CP-fs8.png" width="35%">
 
 2. Single-category archives:
    - When an archive contains only one category, the archive name is omitted from the identifier
    - Example: `hep-th` category has `Physics` → `High Energy Physics - Theory` → `High Energy Physics - Theory`
 
-   <img src="https://raw.githubusercontent.com/romazu/arxiv-query/main/assets/images/taxonomy_hep-th-fs8.png" width="35%">
+   <img src="https://raw.githubusercontent.com/romazu/arxivql/main/assets/images/taxonomy_hep-th-fs8.png" width="35%">
 
 Note: The `Physics` group contains a `Physics` archive alongside other archives, which may cause confusion.
