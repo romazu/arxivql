@@ -9,6 +9,11 @@ Constructing these queries manually presents two challenges:
 This repository provides a pythonic query builder to address both challenges.
 See the [official documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for API details.
 
+## Installation
+```shell
+pip install arxivql
+```
+
 ## Query
 The `Query` class provides constructors for all supported arXiv fields and methods to combine them.
 
