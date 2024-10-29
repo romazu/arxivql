@@ -7,7 +7,7 @@ Constructing these queries manually presents two challenges:
 2. Navigating numerous arXiv category identifiers.
 
 This repository provides a pythonic query builder to address both challenges.
-See the [official documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for API details.
+See the [arxiv documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for the official API details.
 
 ## Installation
 ```shell
@@ -135,13 +135,21 @@ print(Q.category(catalog.all_archives))
 # 20
 # cat:(cs.* econ.* eess.* math.* q-bio.* q-fin.* stat.* astro-ph* cond-mat* nlin.* physics.* gr-qc hep-ex hep-lat hep-ph hep-th math-ph nucl-ex nucl-th quant-ph)
 
-# Broad machine learcning categories, see
-# https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide/
-print(len(catalog.machine_learning_broad))
-print(Q.category(catalog.machine_learning_broad))
+# Broad Machine Learning categories, see official classification guide
+# https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide
+print(len(catalog.ml_broad))
+print(Q.category(catalog.ml_broad))
 # Output:
 # 16
 # cat:(cs.LG stat.ML math.OC cs.CV cs.CL eess.AS cs.IR cs.HC cs.SI cs.CY cs.GR cs.SY cs.AI cs.MM cs.ET cs.NE)
+
+# Core Machine Learning categories according to Andrej Karpathy's `arxiv sanity preserver` project:
+# https://github.com/karpathy/arxiv-sanity-preserver
+print(len(catalog.ml_karpathy))
+print(Q.category(catalog.ml_karpathy))
+# Output:
+# 6
+# cat:(cs.CV cs.AI cs.CL cs.LG cs.NE stat.ML)
 ```
 
 ### Usage with Python arXiv Client

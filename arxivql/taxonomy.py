@@ -1377,8 +1377,20 @@ categories_by_id = _get_categories_by_id(Taxonomy)
 
 @dataclasses.dataclass
 class catalog:
+    all_archives = _get_archives()
+    all_categories = list(categories_by_id.values())
+
+    # High Energy Physics categories.
+    hep = [
+        Taxonomy.hep_th,
+        Taxonomy.hep_ph,
+        Taxonomy.hep_ex,
+        Taxonomy.hep_lat,
+    ]
+
+    # Broad Machine Learning categories according to official classification guide.
     # https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide/
-    machine_learning_broad = [
+    ml_broad = [
         Taxonomy.cs.LG,  # Machine Learning
         Taxonomy.stat.ML,  # Machine Learning
         Taxonomy.math.OC,  # Optimization and Control
@@ -1394,16 +1406,30 @@ class catalog:
         Taxonomy.cs.AI,  # Artificial Intelligence
         Taxonomy.cs.MM,  # Multimedia
         Taxonomy.cs.ET,  # Emerging Technologies
+        # Taxonomy.q_fin,  # Quantitative Finance
+        # Taxonomy.q_bio,  # Quantitative Biology
+        # Taxonomy.physics,  # Physics
+        # Taxonomy.cond_mat,  # Condensed Matter
+        # Taxonomy.astro_ph,  # Astrophysics
         Taxonomy.cs.NE,  # Neural and Evolutionary Computing
     ]
-    hep = [
-        Taxonomy.hep_th,
-        Taxonomy.hep_ph,
-        Taxonomy.hep_ex,
-        Taxonomy.hep_lat,
+
+    # Core Machine Learning categories according to Andrej Karpathy's `arxiv sanity preserver` project.
+    # https://github.com/karpathy/arxiv-sanity-preserver
+    # cs.[CV|AI|CL|LG|NE] | stat.ML
+    # cat:cs.CV+OR+cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.NE+OR+cat:stat.ML
+    # Also note that in newer `arxiv-sanity-lite`, `stat.ML` was removed and `cs.RO` added to defaults.
+    # https://github.com/karpathy/arxiv-sanity-lite
+    # cs.[CV|AI|CL|LG|NE] | cs.RO
+    # 'cat:cs.CV+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.AI+OR+cat:cs.NE+OR+cat:cs.RO'
+    ml_karpathy = [
+        Taxonomy.cs.CV,
+        Taxonomy.cs.AI,
+        Taxonomy.cs.CL,
+        Taxonomy.cs.LG,
+        Taxonomy.cs.NE,
+        Taxonomy.stat.ML,
     ]
-    all_categories = list(categories_by_id.values())
-    all_archives = _get_archives()
 
 
 __all__ = ["Taxonomy", "Category", "catalog", "categories_by_id"]
