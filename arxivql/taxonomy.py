@@ -1339,7 +1339,7 @@ categories_by_id = _get_categories_by_id(Taxonomy)
 
 
 @dataclasses.dataclass
-class Collections:
+class catalog:
     # https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide/
     machine_learning_broad = [
         Taxonomy.cs.LG,  # Machine Learning
@@ -1369,4 +1369,4 @@ class Collections:
     all_archives = _get_archives()
 
 
-__all__ = ["Taxonomy", "Category", "Collections", "categories_by_id"]
+__all__ = ["Taxonomy", "Category", "catalog", "categories_by_id"]

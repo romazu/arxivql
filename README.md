@@ -116,29 +116,29 @@ print("description: ", category.description)
 # description:  Cosmic ray production, acceleration, propagation, detection. Gamma ray astronomy and bursts, X-rays, charged particles, supernovae and other explosive phenomena, stellar remnants and accretion systems, jets, microquasars, neutron stars, pulsars, black holes
 ```
 
-The library also provides useful category collections:
+The library also provides useful category catalog:
 
 ```python
-from arxivql.taxonomy import Collections, categories_by_id
+from arxivql.taxonomy import catalog, categories_by_id
 
 print(len(categories_by_id.keys()))
 # Output:
 # 155
 
-print(len(Collections.all_categories))
+print(len(catalog.all_categories))
 # Output:
 # 155
 
-print(len(Collections.all_archives))
-print(Q.category(Collections.all_archives))
+print(len(catalog.all_archives))
+print(Q.category(catalog.all_archives))
 # Output:
 # 20
 # cat:(cs.* econ.* eess.* math.* q-bio.* q-fin.* stat.* astro-ph.* cond-mat.* nlin.* physics.* gr-qc hep-ex hep-lat hep-ph hep-th math-ph nucl-ex nucl-th quant-ph)
 
 # Broad machine learcning categories, see
 # https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide/
-print(len(Collections.machine_learning_broad))
-print(Q.category(Collections.machine_learning_broad))
+print(len(catalog.machine_learning_broad))
+print(Q.category(catalog.machine_learning_broad))
 # Output:
 # 16
 # cat:(cs.LG stat.ML math.OC cs.CV cs.CL eess.AS cs.IR cs.HC cs.SI cs.CY cs.GR cs.SY cs.AI cs.MM cs.ET cs.NE)
