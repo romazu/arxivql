@@ -123,17 +123,17 @@ from arxivql.taxonomy import catalog, categories_by_id
 
 print(len(categories_by_id.keys()))
 # Output:
-# 155
+# 157
 
 print(len(catalog.all_categories))
 # Output:
-# 155
+# 157
 
 print(len(catalog.all_archives))
 print(Q.category(catalog.all_archives))
 # Output:
 # 20
-# cat:(cs.* econ.* eess.* math.* q-bio.* q-fin.* stat.* astro-ph.* cond-mat.* nlin.* physics.* gr-qc hep-ex hep-lat hep-ph hep-th math-ph nucl-ex nucl-th quant-ph)
+# cat:(cs.* econ.* eess.* math.* q-bio.* q-fin.* stat.* astro-ph* cond-mat* nlin.* physics.* gr-qc hep-ex hep-lat hep-ph hep-th math-ph nucl-ex nucl-th quant-ph)
 
 # Broad machine learcning categories, see
 # https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide/

@@ -892,7 +892,17 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class astro_ph(metaclass=StringableMeta("astro-ph.*")):
+    class astro_ph(metaclass=StringableMeta("astro-ph*")):
+        # Look for reorganisations here:
+        # https://info.arxiv.org/new/
+        general = Category(
+            id="astro-ph",
+            name="General Astrophysics",
+            group_name="Physics",
+            archive_id="astro-ph",
+            archive_name="Astrophysics",
+            description="A special legacy category that includes all articles not classified into new taxonomy",
+        )
         CO = Category(
             id="astro-ph.CO",
             name="Cosmology and Nongalactic Astrophysics",
@@ -943,7 +953,18 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class cond_mat(metaclass=StringableMeta("cond-mat.*")):
+    class cond_mat(metaclass=StringableMeta("cond-mat*")):
+        # Look for reorganisations here:
+        # https://info.arxiv.org/new/
+        # https://info.arxiv.org/new/condreorg.html
+        general = Category(
+            id="cond-mat",
+            name="General Condensed Matter",
+            group_name="Physics",
+            archive_id="cond-mat",
+            archive_name="Condensed Matter",
+            description="A special legacy category that includes all articles not classified into new taxonomy",
+        )
         dis_nn = Category(
             id="cond-mat.dis-nn",
             name="Disordered Systems and Neural Networks",
@@ -1059,6 +1080,22 @@ class Taxonomy:
             archive_name="Nonlinear Sciences",
             description="Exactly solvable systems, integrable PDEs, integrable ODEs, Painleve analysis, integrable discrete maps, solvable lattice models, integrable quantum systems",
         )
+
+    # TODO: Add all legacy categories.
+    # # Legacy.
+    # # Note: always comes with legacy cond-mat.
+    # # Look for reorganisations here:
+    # # https://info.arxiv.org/new/
+    # @dataclasses.dataclass
+    # class chem_ph(metaclass=StringableMeta("chem-ph")):
+    #     general = Category(
+    #         id="chem-ph",
+    #         name="General Chemical Physics",
+    #         group_name="Physics",
+    #         archive_id="chem-ph",
+    #         archive_name="Chemical Physics",
+    #         description="A special legacy category that includes all articles not classified into new taxonomy",
+    #     )
 
     @dataclasses.dataclass
     class physics(metaclass=StringableMeta("physics.*")):
