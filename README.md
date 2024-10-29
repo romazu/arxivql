@@ -1,13 +1,15 @@
 # arXiv Query Language
+
 The arXiv search API enables filtering articles based on various **fields** such as "title", "author", "category", etc.
 Queries follow the format `{field_prefix}:{value}`, e.g., `ti:AlexNet`.
 The query language supports combining field filters using logical operators AND, OR, ANDNOT.
 Constructing these queries manually presents two challenges:
-1. Writing syntactically correct query strings with abbreviated field prefixes.
-2. Navigating numerous arXiv category identifiers.
+1. Writing syntactically correct query strings with abbreviated field prefixes
+2. Navigating numerous arXiv category identifiers
 
 This repository provides a pythonic query builder to address both challenges.
-See the [arxiv documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for the official API details.
+See the [arxiv documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for the official Search API details.
+See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for API behavior details and caveats.
 
 ## Installation
 ```shell
@@ -207,6 +209,22 @@ for result in results:
 
 - Explicit operators in field scopes are supported:
   `ti:(some OR words)` and `ti:(some AND words)` are valid
+
+- The `id_list` parameter (and legacy `id:` field filter) in the arXiv Search API is used internally to filter over the "major" article IDs (`2410.21276`), not the "version" IDs (`2410.21276v1`).
+  - When used with a non-empty query:
+    ```python
+    # pip install arxiv
+    
+    arxiv.Search(query="au:Sutskever", id_list=["2303.08774v6"])  # zero results
+    arxiv.Search(query="au:Sutskever", id_list=["2303.08774"])    # -> 2303.08774v6 (latest)
+    ```
+  - BUT if the query is left empty, `id_list` and `id:` can be used to search for the exact article version:
+    ```python
+    arxiv.Search(id_list=["2303.08774"])     # -> 2303.08774v6 (latest)
+    arxiv.Search(id_list=["2303.08774v4"])   # -> 2303.08774v4
+    arxiv.Search(id_list=["2303.08774v5"])   # -> 2303.08774v5
+    arxiv.Search(id_list=["2303.08774v99"])  # -> obscure error
+    ```
 
 # arXiv Categories Taxonomy
 The arXiv taxonomy consists of three hierarchical levels: group → archive → category.
