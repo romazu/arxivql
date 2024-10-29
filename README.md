@@ -79,6 +79,9 @@ The following operations raise exceptions due to arXiv API limitations:
 a1 | ~a2  # Error: ORNOT operator not supported
 ```
 
+### Wildcards
+Wildcards (`?` and `*`) can be used in queries as usual. See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for more details.
+
 ### Category Taxonomy
 The `Taxonomy` class provides a structured interface for managing arXiv categories.
 Basic usage:
@@ -178,6 +181,13 @@ for result in results:
 ## Important arXiv Search API Behavior
 - Category searches consider all listed categories, not only primary ones.
 
+- arXiv supports two wildcard characters: `?` and `*`.
+  - `?` replaces one character in a word
+  - `*` replaces zero or more characters in a word
+  - They don't match the first character of the term, i.e., `au:??tskever` fails, but `au:Sutske???` is okay
+  - Categories can also be "wildcarded", i.e., `cat:cs.?I` is a valid filter
+  - `?` and `*` can be combined, e.g., `cat:q-?i*` is valid and matches both `q-bio` and `q-fin`
+
 - Quoted items imply exact sequence matching:
   - For text fields, this means standard phrase matching
   - For categories, order matters: `cat:"hep-th cs.AI"` differs from `cat:"cs.AI hep-th"`. Article categories are ordered in arXiv API.
@@ -192,8 +202,8 @@ for result in results:
   1. Grouping logical operations
   2. Defining field scope, e.g., `ti:(some words)` treats spaces as OR operations.
   Examples:
-  - `cat:(cs.AI hep-th)` matches articles with either category
-  - `cat:(cs.* hep-th)` functions as expected with wildcards
+     - `cat:(cs.AI hep-th)` matches articles with either category
+     - `cat:(cs.* hep-th)` functions as expected with wildcards
 
 - Explicit operators in field scopes are supported:
   `ti:(some OR words)` and `ti:(some AND words)` are valid
