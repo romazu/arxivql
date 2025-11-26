@@ -237,3 +237,62 @@ class TestQueryWithWildcards:
         """Mixed wildcards."""
         result = str(Q.category("q-?i*"))
         assert result == "cat:q-?i*"
+
+
+class TestQuerySubmittedDate:
+    """Tests for submitted_date filter."""
+
+    def test_with_date_objects(self):
+        """Date objects default to midnight (0000)."""
+        from datetime import date
+        result = str(Q.submitted_date(date(2023, 1, 1), date(2024, 1, 1)))
+        assert result == "submittedDate:[202301010000 TO 202401010000]"
+
+    def test_with_datetime_objects(self):
+        """Datetime objects preserve hour and minute."""
+        from datetime import datetime
+        result = str(Q.submitted_date(
+            datetime(2023, 1, 1, 6, 0),
+            datetime(2024, 1, 1, 6, 0)
+        ))
+        assert result == "submittedDate:[202301010600 TO 202401010600]"
+
+    def test_with_mixed_date_datetime(self):
+        """Can mix date and datetime."""
+        from datetime import date, datetime
+        result = str(Q.submitted_date(date(2023, 1, 1), datetime(2024, 1, 1, 12, 30)))
+        assert result == "submittedDate:[202301010000 TO 202401011230]"
+
+    def test_combined_with_author(self):
+        """Combine with other query fields."""
+        from datetime import date
+        query = Q.author("Terence Tao") & Q.submitted_date(date(2023, 1, 1), date(2024, 1, 1))
+        result = str(query)
+        assert result == '(au:"Terence Tao" AND submittedDate:[202301010000 TO 202401010000])'
+
+    def test_open_ended_start(self):
+        """None start creates open-ended range."""
+        from datetime import date
+        result = str(Q.submitted_date(None, date(2024, 1, 1)))
+        assert result == "submittedDate:[100001010000 TO 202401010000]"
+
+    def test_open_ended_end(self):
+        """None end creates open-ended range."""
+        from datetime import date
+        result = str(Q.submitted_date(date(2023, 1, 1), None))
+        assert result == "submittedDate:[202301010000 TO 900001010000]"
+
+    def test_open_ended_with_negation(self):
+        """Open-ended range with ANDNOT for exclusion."""
+        from datetime import date
+        query = Q.author("Tao") & ~Q.submitted_date()
+        result = str(query)
+        assert "ANDNOT submittedDate:[100001010000 TO 900001010000]" in result
+
+    def test_timezone_aware_datetime_converted_to_utc(self):
+        """Timezone-aware datetimes are auto-converted to UTC."""
+        from datetime import datetime, timezone, timedelta
+        tz = timezone(timedelta(hours=9))
+        dt_local = datetime(2023, 1, 1, 5, 0, tzinfo=tz)  # 05:00 UTC+9 = 20:00 UTC the day before
+        result = str(Q.submitted_date(dt_local, None))
+        assert "202212312000" in result  # 20:00 UTC

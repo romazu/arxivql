@@ -51,6 +51,30 @@ Q.abstract(("Syntactic", "natural language processing", "synthetic corpus"))
 ```
 Note: All searches are case-insensitive.
 
+### Date Filtering
+Filter by submission date range using `datetime` or `date` objects.
+For convenience, `None` (the default) arguments make the date range open-ended.
+Timezone-aware datetimes are converted to UTC.
+
+```python
+from datetime import date, datetime
+from arxivql import Query as Q
+
+# Date range (times default to 00:00 GMT)
+Q.submitted_date(date(2023, 1, 1), date(2024, 1, 1))
+# Output: submittedDate:[202301010000 TO 202401010000]
+
+# With specific times
+Q.submitted_date(datetime(2023, 1, 1, 6, 0), datetime(2024, 1, 1, 6, 0))
+# Output: submittedDate:[202301010600 TO 202401010600]
+
+# Open-ended ranges (None for no bound)
+Q.author("Terence Tao") & Q.submitted_date(date(2020, 1, 1), None)  # From 2020 onwards
+# Output: (au:"Terence Tao" AND submittedDate:[202001010000 TO 900001010000])
+
+Q.title("GPT") & ~Q.submitted_date(None, date(2023, 1, 1))  # Exclude before 2023
+# Output: (ti:GPT ANDNOT submittedDate:[100001010000 TO 202301010000])
+```
 
 ### Logical Operations
 Complex queries can be constructed by combining field filters using regular python logic operators:

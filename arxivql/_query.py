@@ -1,5 +1,6 @@
 import re
 import warnings
+from datetime import datetime, date, timezone
 from typing import List, Protocol, Union, Tuple
 
 
@@ -16,15 +17,16 @@ class Query:
     https://info.arxiv.org/help/api/user-manual.html#query_details
 
     Available field prefixes with explanations:
-    ti     Title
-    au     Author
-    abs    Abstract
-    co     Comment
-    jr     Journal Reference
-    cat    Subject Category
-    rn     Report Number
-    id     Id (use id_list instead)
-    all    All of the above
+    ti             Title
+    au             Author
+    abs            Abstract
+    co             Comment
+    jr             Journal Reference
+    cat            Subject Category
+    rn             Report Number
+    id             Id (use id_list instead)
+    all            All of the above
+    submittedDate  Submission date range in format [YYYYMMDDTTTT TO YYYYMMDDTTTT]
 
     Possible Boolean operators:
     AND
@@ -155,3 +157,32 @@ class Query:
     @classmethod
     def all(cls, value: FieldValue):
         return cls.from_field(value, prefix="all")
+
+    @classmethod
+    def submitted_date(
+            cls,
+            start: Union[datetime, date, None] = None,
+            end: Union[datetime, date, None] = None,
+    ) -> "Query":
+        """
+        Filter by submission date range (times in GMT).
+
+        Args:
+            start: Range start (datetime, date, or None for open-ended).
+            end: Range end (datetime, date, or None for open-ended).
+
+        Timezone-aware datetimes are converted to UTC. Date objects default to 00:00 GMT.
+        """
+
+        def format_date(d: Union[datetime, date]) -> str:
+            if isinstance(d, datetime):
+                if d.tzinfo is not None:
+                    d = d.astimezone(timezone.utc)
+                return d.strftime("%Y%m%d%H%M")
+            else:
+                # date only - default to midnight
+                return d.strftime("%Y%m%d") + "0000"
+
+        start_str = format_date(start) if start is not None else "100001010000"
+        end_str = format_date(end) if end is not None else "900001010000"
+        return cls(f"submittedDate:[{start_str} TO {end_str}]")

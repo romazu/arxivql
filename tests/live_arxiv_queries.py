@@ -125,6 +125,15 @@ def test_catalog_search():
     run_query(query, description="Search using catalog categories")
 
 
+def test_submitted_date():
+    """Test submitted date filter."""
+    from datetime import date
+    # end = date(2024, 9, 2)  # still includes article 2409.01343 submitted 2024-09-02
+    end = date(2024, 9, 3)  # excludes 2409.01343
+    query = Q.author("Terence Tao") & ~ Q.submitted_date(start=None, end=end)
+    run_query(query, description="Author with excluded date range filter")
+
+
 def main():
     """Run all live query tests."""
     print("Live arxiv api query tests")
@@ -143,6 +152,7 @@ def main():
         test_wildcard_in_title,
         test_abstract_search,
         test_catalog_search,
+        test_submitted_date,
     ]
 
     for test_func in tests:
