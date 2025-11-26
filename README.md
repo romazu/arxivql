@@ -269,3 +269,21 @@ Special cases:
    <img src="https://raw.githubusercontent.com/romazu/arxivql/main/assets/images/taxonomy_hep-th-fs8.png" width="35%">
 
 Note: The `Physics` group contains a `Physics` archive alongside other archives, which may cause confusion.
+
+# Testing
+The library includes a comprehensive test suite.
+
+## Unit Tests
+Unit tests verify query construction without making arXiv API calls:
+```shell
+pip install pytest
+pytest tests/
+```
+
+## Manual Live arXiv API Tests
+Live tests make actual requests to the arXiv API to verify query behavior:
+```shell
+pip install arxiv
+python tests/live_arxiv_queries.py
+```
+Note: Live tests are not run by pytest (the file is intentionally not prefixed with `test_`).
