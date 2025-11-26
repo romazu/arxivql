@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arxivql"
-version = "1.0.0"
+version = "1.0.1"
 description = "A pythonic query builder for arXiv search API"
 authors = ["Roman Zubov <romazu@protonmail.com>"]
 license = "MIT"
@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/romazu/arxivql"
 keywords = ["arxiv", "api", "academic", "articles", "query", "language", "dsl"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
