@@ -108,13 +108,15 @@ class Query:
         if isinstance(value, list):
             # Combine items inside the field, i.e., "field:(i1 i2 i3 ...)"
             terms = [cls._validate_term(term, quote) for term in value]
-            content = f"{prefix}:({" ".join(terms)})"
+            joined = " ".join(terms)
+            content = f"{prefix}:({joined})"
             return cls(content)
 
         if isinstance(value, tuple):
             # Combine items inside the field, i.e., "field:(i1 AND i2 AND i3 ...)"
             terms = [cls._validate_term(term, quote) for term in value]
-            content = f"{prefix}:({" AND ".join(terms)})"
+            joined = " AND ".join(terms)
+            content = f"{prefix}:({joined})"
             return cls(content)
 
         term = cls._validate_term(value, quote)
