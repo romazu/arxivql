@@ -1,7 +1,7 @@
 # arXiv Query Language
 
-[![pypi](https://badge.fury.io/py/arxivql.svg)](https://pypi.org/project/arxivql/)
-[![tests](https://github.com/romazu/arxivql/actions/workflows/tests.yml/badge.svg)](https://github.com/romazu/arxivql/actions/workflows/tests.yml)
+[![PyPI](https://img.shields.io/pypi/v/arxivql)](https://pypi.org/project/arxivql/)
+[![Tests](https://img.shields.io/github/actions/workflow/status/romazu/arxivql/tests.yml?branch=ci-test)](https://github.com/romazu/arxivql/actions?query=branch%3Aci-test)
 
 The arXiv search API enables filtering articles based on various **fields** such as "title", "author", "category", etc.
 Queries follow the format `{field_prefix}:{value}`, e.g., `ti:AlexNet`.
