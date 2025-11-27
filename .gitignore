@@ -2,9 +2,9 @@
 
 # Commit these:
 !pyproject.toml
-!poetry.lock
 
 # Don't commit these:
+poetry.lock
 __pycache__/
 *.py[cod]
 dist/
