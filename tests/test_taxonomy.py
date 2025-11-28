@@ -3,9 +3,8 @@ Unit tests for Taxonomy and Category classes.
 Tests taxonomy structure and category information.
 """
 
-import pytest
 from arxivql import Taxonomy as T, Query as Q
-from arxivql.taxonomy import Category, catalog, categories_by_id
+from arxivql.taxonomy import Category
 
 
 class TestCategoryDataclass:
