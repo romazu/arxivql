@@ -233,10 +233,7 @@ def test_archive_wildcard(max_results=None, timeout_seconds=None):
         timeout_seconds=timeout_seconds,
     )
     for result in results:
-        # TODO: Make category archive an iterable.
-        # assert any(category.id in result.categories for category in T.econ)
-        categories = [field for name, field in T.econ.__dict__.items() if not name.startswith("_")]
-        assert any(category.id in result.categories for category in categories)
+        assert any(category.id in result.categories for category in T.econ)
 
 
 def test_complex_query(max_results=None, timeout_seconds=None):

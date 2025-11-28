@@ -3,7 +3,6 @@ Unit tests for the Query class.
 Tests query building functionality without making actual arXiv API calls.
 """
 
-import pytest
 from arxivql import Query as Q
 
 

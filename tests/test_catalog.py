@@ -3,7 +3,6 @@ Unit tests for catalog and categories_by_id.
 Tests the category catalog and lookup functionality.
 """
 
-import pytest
 from arxivql import Taxonomy as T, Query as Q
 from arxivql.taxonomy import Category, catalog, categories_by_id
 
@@ -90,6 +89,22 @@ class TestCatalogAllArchives:
         result = str(Q.category(catalog.all_archives))
         assert result.startswith("cat:(")
         assert result.endswith(")")
+
+    def test_archive_iteration_matches_catalog_filter(self):
+        """Archive iteration matches filtering by archive_id in catalog.all_categories."""
+        cs_from_iter = {cat.id for cat in T.cs}
+        cs_from_catalog = {cat.id for cat in catalog.all_categories if cat.archive_id == "cs"}
+        assert cs_from_iter == cs_from_catalog
+
+    def test_all_archives_iteration_covers_all_categories(self):
+        """Iterating over all_archives yields exactly all_categories."""
+        ids_from_archives = {
+            cat.id
+            for archive in catalog.all_archives
+            for cat in archive
+        }
+        ids_from_all_categories = {cat.id for cat in catalog.all_categories}
+        assert ids_from_archives == ids_from_all_categories
 
 
 class TestCatalogVariants:

@@ -3,6 +3,7 @@ Unit tests for Taxonomy and Category classes.
 Tests taxonomy structure and category information.
 """
 
+import pytest
 from arxivql import Taxonomy as T, Query as Q
 from arxivql.taxonomy import Category
 
@@ -156,6 +157,38 @@ class TestTaxonomySingleCategoryArchives:
         cat = T.nucl_ex
         assert isinstance(cat, Category)
         assert cat.id == "nucl-ex"
+
+
+class TestCategoryIteration:
+    """Tests for iterability of Category instances used as archives."""
+
+    def test_single_category_archive_iterates_over_itself(self):
+        """Single-category archives (e.g., hep-th) yield themselves when iterated."""
+        cat = T.hep_th
+        assert list(cat) == [cat]
+
+    def test_non_archive_category_not_iterable(self):
+        """Regular categories should not be iterable and raise TypeError."""
+        cat = T.cs.AI
+        with pytest.raises(TypeError):
+            list(cat)
+
+
+class TestArchiveLength:
+    """Tests for __len__ behavior on archives and archive-like categories."""
+
+    def test_archive_len_matches_iteration(self):
+        """len(T.cs) equals the number of categories yielded by iterating over T.cs."""
+        assert len(T.cs) == len(list(T.cs))
+
+    def test_single_category_archive_len_is_one(self):
+        """Single-category archives report length 1."""
+        assert len(T.hep_th) == 1
+
+    def test_regular_category_len_raises_type_error(self):
+        """Regular categories do not define a length and raise TypeError on len()."""
+        with pytest.raises(TypeError):
+            len(T.cs.AI)
 
 
 class TestTaxonomyWithQuery:

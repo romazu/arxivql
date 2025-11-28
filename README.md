@@ -130,6 +130,25 @@ print(Q.category((T.cs.LG, T.stat.ML)) & Q.title("LLM"))
 ```
 Note the wildcard syntax in archive-level queries (e.g., `T.cs`).
 
+Archives and archive-like categories are also iterable:
+
+```python
+# Iterate over all Computer Science categories
+for cat in T.cs:
+    print(cat.id)
+
+# Single-category archives act as one-element iterables
+for cat in T.hep_th:
+    print(cat.id)  # hep-th
+
+# Regular categories are not iterable
+try:
+    for cat in T.cs.AI:
+        pass
+except TypeError:
+    print("T.cs.AI is not iterable")
+```
+
 The Taxonomy class provides comprehensive category information:
 ```python
 category = T.astro_ph.HE
@@ -148,7 +167,8 @@ print("description: ", category.description)
 # description:  Cosmic ray production, acceleration, propagation, detection. Gamma ray astronomy and bursts, X-rays, charged particles, supernovae and other explosive phenomena, stellar remnants and accretion systems, jets, microquasars, neutron stars, pulsars, black holes
 ```
 
-The library also provides useful category catalog:
+The library also provides a useful category catalog.
+Combined with archive iteration (e.g., `for cat in T.cs`), this allows one to work with all archives as collections.
 
 ```python
 from arxivql.taxonomy import catalog, categories_by_id
@@ -166,6 +186,16 @@ print(Q.category(catalog.all_archives))
 # Output:
 # 20
 # cat:(cs.* econ.* eess.* math.* q-bio.* q-fin.* stat.* astro-ph* cond-mat* nlin.* physics.* gr-qc hep-ex hep-lat hep-ph hep-th math-ph nucl-ex nucl-th quant-ph)
+
+archive_sizes = [len(list(archive)) for archive in catalog.all_archives]
+print(archive_sizes)
+# Output:
+# [40, 3, 4, 32, 10, 9, 6, 7, 10, 5, 22, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+archive_sizes = [len(archive) for archive in catalog.all_archives]
+print(archive_sizes)
+# Output:
+# [40, 3, 4, 32, 10, 9, 6, 7, 10, 5, 22, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 # Broad Machine Learning categories, see official classification guide
 # https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide

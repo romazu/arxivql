@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Iterator
 
 
 @dataclasses.dataclass
@@ -16,12 +17,23 @@ class Category:
     def to_string(self):
         return self.id
 
+    # Allow single-category archives (where id == archive_id) to behave as iterable archives that yield only themselves.
+    def __iter__(self) -> Iterator[Category]:
+        if self.id == self.archive_id:
+            yield self
+        else:
+            raise TypeError(f"Category {self.id} is not an archive and is not iterable")
 
-# StringableMeta is used as metaclass factory to add
+    def __len__(self) -> int:
+        if self.id == self.archive_id:
+            return 1
+        raise TypeError(f"Category {self.id} is not an archive and has no len()")
+
+
+# ArchiveMeta is a metaclass factory that adds string conversion and iteration over Category-valued class attributes.
 # noinspection PyPep8Naming
-# noinspection SpellCheckingInspection
-def StringableMeta(s: str):
-    class _StringableMeta(type):
+def ArchiveMeta(s: str):
+    class _ArchiveMeta(type):
         def __str__(cls):
             return s
 
@@ -29,7 +41,23 @@ def StringableMeta(s: str):
         def to_string():
             return s
 
-    return _StringableMeta
+        def __iter__(cls) -> Iterator[Category]:
+            for attr_name, attr_value in cls.__dict__.items():
+                # if attr_name.startswith("_"):
+                #     continue
+                # if isinstance(attr_value, (staticmethod, classmethod, property)):
+                #     continue
+                # if inspect.isfunction(attr_value):
+                #     continue
+                # yield attr_value
+                if isinstance(attr_value, Category):
+                    yield attr_value
+
+        def __len__(cls) -> int:
+            num_categories = sum(1 for attr_value in cls.__dict__.values() if isinstance(attr_value, Category))
+            return num_categories
+
+    return _ArchiveMeta
 
 
 @dataclasses.dataclass
@@ -39,7 +67,7 @@ class Taxonomy:
     """
 
     @dataclasses.dataclass
-    class cs(metaclass=StringableMeta("cs.*")):
+    class cs(metaclass=ArchiveMeta("cs.*")):
         AI = Category(
             id="cs.AI",
             name="Artificial Intelligence",
@@ -362,7 +390,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class econ(metaclass=StringableMeta("econ.*")):
+    class econ(metaclass=ArchiveMeta("econ.*")):
         EM = Category(
             id="econ.EM",
             name="Econometrics",
@@ -389,7 +417,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class eess(metaclass=StringableMeta("eess.*")):
+    class eess(metaclass=ArchiveMeta("eess.*")):
         AS = Category(
             id="eess.AS",
             name="Audio and Speech Processing",
@@ -424,7 +452,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class math(metaclass=StringableMeta("math.*")):
+    class math(metaclass=ArchiveMeta("math.*")):
         AC = Category(
             id="math.AC",
             name="Commutative Algebra",
@@ -683,7 +711,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class q_bio(metaclass=StringableMeta("q-bio.*")):
+    class q_bio(metaclass=ArchiveMeta("q-bio.*")):
         BM = Category(
             id="q-bio.BM",
             name="Biomolecules",
@@ -766,7 +794,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class q_fin(metaclass=StringableMeta("q-fin.*")):
+    class q_fin(metaclass=ArchiveMeta("q-fin.*")):
         CP = Category(
             id="q-fin.CP",
             name="Computational Finance",
@@ -841,7 +869,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class stat(metaclass=StringableMeta("stat.*")):
+    class stat(metaclass=ArchiveMeta("stat.*")):
         AP = Category(
             id="stat.AP",
             name="Applications",
@@ -892,7 +920,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class astro_ph(metaclass=StringableMeta("astro-ph*")):
+    class astro_ph(metaclass=ArchiveMeta("astro-ph*")):
         # Look for reorganisations here:
         # https://info.arxiv.org/new/
         general = Category(
@@ -953,7 +981,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class cond_mat(metaclass=StringableMeta("cond-mat*")):
+    class cond_mat(metaclass=ArchiveMeta("cond-mat*")):
         # Look for reorganisations here:
         # https://info.arxiv.org/new/
         # https://info.arxiv.org/new/condreorg.html
@@ -1039,7 +1067,7 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class nlin(metaclass=StringableMeta("nlin.*")):
+    class nlin(metaclass=ArchiveMeta("nlin.*")):
         AO = Category(
             id="nlin.AO",
             name="Adaptation and Self-Organizing Systems",
@@ -1087,7 +1115,7 @@ class Taxonomy:
     # # Look for reorganisations here:
     # # https://info.arxiv.org/new/
     # @dataclasses.dataclass
-    # class chem_ph(metaclass=StringableMeta("chem-ph")):
+    # class chem_ph(metaclass=ArchiveMeta("chem-ph")):
     #     general = Category(
     #         id="chem-ph",
     #         name="General Chemical Physics",
@@ -1098,7 +1126,7 @@ class Taxonomy:
     #     )
 
     @dataclasses.dataclass
-    class physics(metaclass=StringableMeta("physics.*")):
+    class physics(metaclass=ArchiveMeta("physics.*")):
         acc_ph = Category(
             id="physics.acc-ph",
             name="Accelerator Physics",
