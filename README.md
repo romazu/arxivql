@@ -313,4 +313,8 @@ Live tests make actual requests to the arXiv API to verify query behavior:
 pip install arxiv
 python tests/live_arxiv_queries.py
 ```
+or
+```shell
+pytest tests/live_arxiv_queries.py
+```
 Note: Live tests are not run by pytest (the file is intentionally not prefixed with `test_`).
