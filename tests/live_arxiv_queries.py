@@ -279,6 +279,18 @@ def test_abstract_search(max_results=None, timeout_seconds=None):
     for result in results:
         assert is_match_normaliized("self attent mechan", result.summary)
 
+def test_abstract_search_normalization(max_results=None, timeout_seconds=None):
+    """Test abstract field search with obfuscated input."""
+    query = Q.abstract("-- -- mechaniC --- ATTENTIVE----seLfs --") & Q.category(T.cs.LG)
+    results = run_query(
+        query,
+        max_results=max_results,
+        description="Abstract phrase search with obfuscated input giving the same results",
+        timeout_seconds=timeout_seconds,
+    )
+    for result in results:
+        assert is_match_normaliized("self attent mechan", result.summary)
+
 
 def test_catalog_search(max_results=None, timeout_seconds=None):
     """Test search using catalog."""
@@ -327,6 +339,7 @@ def main():
         test_complex_query,
         test_wildcard_in_title,
         test_abstract_search,
+        test_abstract_search_normalization,
         test_catalog_search,
         test_submitted_date,
     ]
