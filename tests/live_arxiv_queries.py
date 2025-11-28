@@ -63,19 +63,36 @@ def _query_timeout(seconds: Optional[int]):
         signal.signal(signal.SIGALRM, previous)
 
 
-def run_query(query, max_results=3, description="", timeout_seconds: Optional[int] = None):
+def is_match_normaliized(normalized_query: str, raw: str, exact: bool = True) -> bool:
+    """Return True if all normalized words appear in normalized raw text."""
+
+    words = [w for w in normalized_query.split() if w]
+    if not words:
+        return False
+
+    normalized_raw = raw.lower().replace("-", " ")
+    if exact:
+        return all(word in normalized_raw for word in words)
+    else:
+        return any(word in normalized_raw for word in words)
+
+
+def run_query(query, max_results=None, description="", timeout_seconds: Optional[int] = None):
     """Run a query and print results.
 
     Any errors from the arxiv client are allowed to propagate to callers.
     Pass ``timeout_seconds=None`` to disable timeout.
     """
+    if max_results is None:
+        max_results = 3
+
     print(f"\n{'=' * 60}")
     print(f"Query: {query}")
     if description:
         print(f"Description: {description}")
     print("-" * 60)
 
-    search = arxiv.Search(query=str(query), max_results=max_results)
+    search = arxiv.Search(query=str(query), max_results=max_results, sort_by=arxiv.SortCriterion.SubmittedDate)
     client = arxiv.Client()
 
     with _query_timeout(timeout_seconds):
@@ -89,11 +106,12 @@ def run_query(query, max_results=3, description="", timeout_seconds: Optional[in
         print(f"    Title:      {result.title}")
         print(f"    Authors:    {authors_str}")
         print(f"    Categories: {categories_str}")
+        # print(f"    Abstract:   {result.summary}")
 
     return results
 
 
-def test_basic_title_query(max_results=3, timeout_seconds=None):
+def test_basic_title_query(max_results=None, timeout_seconds=None):
     """Test basic title search."""
     query = Q.title("transformer")
     results = run_query(
@@ -104,10 +122,10 @@ def test_basic_title_query(max_results=3, timeout_seconds=None):
     )
     for result in results:
         # exact word match
-        assert "transformer" in result.title.lower()
+        assert is_match_normaliized("transform", result.title)
 
 
-def test_phrase_query(max_results=3, timeout_seconds=None):
+def test_phrase_query(max_results=None, timeout_seconds=None):
     """Test phrase search with auto-quoting."""
     query = Q.title("large language model")
     results = run_query(
@@ -118,10 +136,10 @@ def test_phrase_query(max_results=3, timeout_seconds=None):
     )
     for result in results:
         # exact phrase match
-        assert "large language model" in result.title.lower()
+        assert is_match_normaliized("larg languag model", result.title)
 
 
-def test_author_query(max_results=3, timeout_seconds=None):
+def test_author_query(max_results=None, timeout_seconds=None):
     """Test author search."""
     query = Q.author("Ilya Sutskever")
     results = run_query(
@@ -132,10 +150,10 @@ def test_author_query(max_results=3, timeout_seconds=None):
     )
     for result in results:
         # match at least one author
-        assert any("Ilya Sutskever".lower() in author.name.lower() for author in result.authors)
+        assert any(is_match_normaliized("ilya sutskever", author.name) for author in result.authors)
 
 
-def test_category_query(max_results=3, timeout_seconds=None):
+def test_category_query(max_results=None, timeout_seconds=None):
     """Test category filter."""
     query = Q.category(T.cs.CL) & Q.title("GPT")
     results = run_query(
@@ -149,7 +167,7 @@ def test_category_query(max_results=3, timeout_seconds=None):
         assert T.cs.CL.id in result.categories
 
 
-def test_tuple_all_matching(max_results=3, timeout_seconds=None):
+def test_tuple_all_matching(max_results=None, timeout_seconds=None):
     """Test tuple for ALL matching."""
     query = Q.title(("neural", "network", "training"))
     results = run_query(
@@ -160,10 +178,10 @@ def test_tuple_all_matching(max_results=3, timeout_seconds=None):
     )
     for result in results:
         # match all words
-        assert all(word.lower() in result.title.lower() for word in ("neural", "network", "training"))
+        assert is_match_normaliized("neural network train", result.title)
 
 
-def test_list_any_matching(max_results=3, timeout_seconds=None):
+def test_list_any_matching(max_results=None, timeout_seconds=None):
     """Test list for ANY matching."""
     query = Q.title(["topology", "crocodile", "BERT"])
     results = run_query(
@@ -174,10 +192,10 @@ def test_list_any_matching(max_results=3, timeout_seconds=None):
     )
     for result in results:
         # match any word
-        assert any(word.lower() in result.title.lower() for word in ["topology", "crocodile", "BERT"])
+        assert is_match_normaliized("topolog crocodil bert", result.title, exact=False)
 
 
-def test_andnot_query(max_results=3, timeout_seconds=None):
+def test_andnot_query(max_results=None, timeout_seconds=None):
     """Test ANDNOT exclusion."""
     query = Q.title("transformer") & ~Q.category(T.cs.CL)
     results = run_query(
@@ -191,7 +209,7 @@ def test_andnot_query(max_results=3, timeout_seconds=None):
         assert T.cs.CL.id not in result.categories
 
 
-def test_or_categories(max_results=3, timeout_seconds=None):
+def test_or_categories(max_results=None, timeout_seconds=None):
     """Test OR between categories."""
     query = Q.category([T.physics.hist_ph, T.physics.bio_ph]) & Q.title("energy")
     results = run_query(
@@ -205,7 +223,7 @@ def test_or_categories(max_results=3, timeout_seconds=None):
         assert any(category.id in result.categories for category in [T.physics.hist_ph, T.physics.bio_ph])
 
 
-def test_archive_wildcard(max_results=3, timeout_seconds=None):
+def test_archive_wildcard(max_results=None, timeout_seconds=None):
     """Test archive-level wildcard query."""
     query = Q.category(T.econ) & Q.title("quantum")
     results = run_query(
@@ -221,7 +239,7 @@ def test_archive_wildcard(max_results=3, timeout_seconds=None):
         assert any(category.id in result.categories for category in categories)
 
 
-def test_complex_query(max_results=3, timeout_seconds=None):
+def test_complex_query(max_results=None, timeout_seconds=None):
     """Test complex combined query from README."""
     query = Q.author("Ilya Sutskever") & Q.title("autoencoder") & ~Q.category(T.cs.AI)
     results = run_query(
@@ -231,13 +249,13 @@ def test_complex_query(max_results=3, timeout_seconds=None):
         timeout_seconds=timeout_seconds,
     )
     for result in results:
-        assert any("Ilya Sutskever".lower() in author.name.lower() for author in result.authors)
-        assert "autoencoder" in result.title.lower()
+        assert any(is_match_normaliized("ilya sutskever", author.name) for author in result.authors)
+        assert is_match_normaliized("autoencod", result.title)
         assert T.cs.AI.id not in result.categories
 
 
-def test_wildcard_in_title(max_results=3, timeout_seconds=None):
-    """Test wildcard character in title."""
+def test_wildcard_in_title(max_results=None, timeout_seconds=None):
+    """Test wildcard character in title. In general wildcards in title are brittle and not recommended."""
     query = Q.title("trans*") & Q.category(T.cs.CL)
     results = run_query(
         query,
@@ -246,12 +264,12 @@ def test_wildcard_in_title(max_results=3, timeout_seconds=None):
         timeout_seconds=timeout_seconds,
     )
     for result in results:
-        assert "trans" in result.title.lower()
+        assert is_match_normaliized("tran", result.title)
 
 
-def test_abstract_search(max_results=3, timeout_seconds=None):
+def test_abstract_search(max_results=None, timeout_seconds=None):
     """Test abstract field search."""
-    query = Q.abstract("attention mechanism") & Q.category(T.cs.LG)
+    query = Q.abstract("self-attention mechanisms") & Q.category(T.cs.LG)
     results = run_query(
         query,
         max_results=max_results,
@@ -259,10 +277,10 @@ def test_abstract_search(max_results=3, timeout_seconds=None):
         timeout_seconds=timeout_seconds,
     )
     for result in results:
-        assert "attention mechanism" in result.summary.lower()
+        assert is_match_normaliized("self attent mechan", result.summary)
 
 
-def test_catalog_search(max_results=3, timeout_seconds=None):
+def test_catalog_search(max_results=None, timeout_seconds=None):
     """Test search using catalog."""
     query = Q.category(catalog.hep) & Q.author("Hawking") & ~ Q.title("black holes")
     results = run_query(
@@ -275,7 +293,7 @@ def test_catalog_search(max_results=3, timeout_seconds=None):
         assert any(category.id in result.categories for category in catalog.hep)
 
 
-def test_submitted_date(max_results=3, timeout_seconds=None):
+def test_submitted_date(max_results=None, timeout_seconds=None):
     """Test submitted date filter."""
     import datetime
     # end = date(2024, 9, 2)  # still includes article 2409.01343 submitted 2024-09-02

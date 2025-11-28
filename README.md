@@ -216,13 +216,56 @@ for result in results:
   - They don't match the first character of the term, i.e., `au:??tskever` fails, but `au:Sutske???` is okay
   - Categories can also be "wildcarded", i.e., `cat:cs.?I` is a valid filter
   - `?` and `*` can be combined, e.g., `cat:q-?i*` is valid and matches both `q-bio` and `q-fin`
+  - Text fields other than `author` and `category` are stemmed (see the notes on normalization and API quirks below), which means that wildcards often do not work as expected on them.
 
-- Quoted items imply exact sequence matching:
-  - For text fields, this means standard phrase matching
-  - For categories, order matters: `cat:"hep-th cs.AI"` differs from `cat:"cs.AI hep-th"`. Article categories are ordered in arXiv API.
-  - Queries like `cat:"cs.* hep-th"` or `cat:"cs.*"` return no results as they search for literal category names, and, e.g., literal `cs.*` category does not exist.
-  - Double quotes are special characters and should be carefully handled. E.g., `"""` finds nothing, and `""2"""` is equivalent to `"2"` and `2`.
-  - This library raises exceptions for most such problematic queries. 
+- arXiv search engine internally normalizes input terms before matching (based on observed behavior -- this is not documented in the official API):
+  - Terms are lowercased, hyphens are replaced with spaces, text is tokenized into words, and each token is stemmed with a Porter-like stemmer before being reassembled into a query string.
+  - Example normalizations:
+    - `transformers` → `transform`
+    - `self-attention mechanisms` → `self attent mechan`
+  - This normalization also applies to quoted searches. For example, `ti:"mechanics"` can match both "mechanic" and "mechanism", because `mechanics` is normalized to `mechan`. More on quoted-query behavior below.
+  - The `author` field is not stemmed, so `au:john` and `au:johns` are different queries.
+  - Because of this normalization, the following queries are equivalent:
+
+    ```text
+    abs:("self-attention mechanisms")
+    abs:("Mechanisms Attention Self")
+    abs:"self-attention mechanisms"
+    abs:"selfs attentive mechanics"
+    abs:"-- selfs -- --- attentive----mechanics --"
+    abs:("-- -- mechaniC --- ATTENTIVE----seLfs --")
+    ```
+
+  - You can approximate this normalization locally using NLTK:
+
+    ```python
+    import nltk
+
+    nltk.download("punkt_tab")
+    stemmer = nltk.PorterStemmer()
+
+
+    def normalize_text(text: str) -> str:
+        text_clean = text.lower()
+        text_clean = text_clean.replace("-", " ")
+        tokens = nltk.word_tokenize(text_clean)
+        stemmed = [stemmer.stem(token) for token in tokens]
+        return " ".join(stemmed)
+
+
+    print(normalize_text("transformers"))
+    print(normalize_text("self-attention mechanisms"))
+    # Output:
+    # transform
+    # self attent mechan
+    ```
+
+- Quoted items imply exact matching, but:
+  - For regular text fields (i.e., all except categories), this behaves like an AND operator over all normalized words in the quoted phrase in any order (see normalization note above), rather than strict character-by-character phrase matching.
+  - For categories, quoted multi-category queries don't work at all. For example, `cat:"hep-th cs.AI"` and `cat:"cs.* hep-th"` don't match anything and give zero results. The `Q.category` constructor in this library raises an exception for this case.
+  - Single categories can be quoted (`cat:"cs.*"`), but this is redundant.
+  - Beyond the usages above, double quotes are special characters and should be carefully handled. They often give unintuitive results: for example, `ti:"` returns an error, while `ti:""`, `ti:""""`, and `ti:"""""` return identical matches without a `"` character in them, and `""2"""` is equivalent to `""2""` but not to `"2"`.
+  - This library raises exceptions for most such problematic queries.
 
 - Spaces between terms or fields imply OR operations:
   `cat:hep-th cat:cs.AI` equals `cat:hep-th OR cat:cs.AI`
@@ -233,9 +276,10 @@ for result in results:
   Examples:
      - `cat:(cs.AI hep-th)` matches articles with either category
      - `cat:(cs.* hep-th)` functions as expected with wildcards
+  3. Note that several categories inside `cat` parentheses are okay.
 
 - Explicit operators in field scopes are supported:
-  `ti:(some OR words)` and `ti:(some AND words)` are valid
+  `ti:(some OR words)` and `ti:(some AND words)` are valid.
 
 - The `id_list` parameter (and legacy `id:` field filter) in the arXiv Search API is used internally to filter over the "major" article IDs (`2410.21276`), not the "version" IDs (`2410.21276v1`).
   - When used with a non-empty query:
@@ -252,6 +296,14 @@ for result in results:
     arxiv.Search(id_list=["2303.08774v5"])   # -> 2303.08774v5
     arxiv.Search(id_list=["2303.08774v99"])  # -> obscure error
     ```
+
+- Empty query matches all article, i.e., no filtering is applied.
+
+- There are some other unintuitive API quirks:
+  - Query `all:-` (or just `-`) matches actual "-" character across different article fields. But `ti:-` and `abs:-` match nothing.
+  - Query `all:atte?tion` works as expected, but `abs:atte?tion` returns only 5 matches and `ti:atte?tion` returns zero matches.
+  - Queries `ti:atten?` and `ti:atten*` return identical results, as if "attention" was searched for. But `ti:attent?` returns nothing. This is probably because the stem of "attention" is "attent", which matches `atten?` but not `attent?`.
+  - And likely more.
 
 # arXiv Categories Taxonomy
 The arXiv taxonomy consists of three hierarchical levels: group → archive → category.
