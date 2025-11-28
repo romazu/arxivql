@@ -18,7 +18,7 @@ class Category:
         return self.id
 
     # Allow single-category archives (where id == archive_id) to behave as iterable archives that yield only themselves.
-    def __iter__(self) -> Iterator[Category]:
+    def __iter__(self) -> Iterator['Category']:
         if self.id == self.archive_id:
             yield self
         else:
