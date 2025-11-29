@@ -3,6 +3,7 @@ Unit tests for the Query class.
 Tests query building functionality without making actual arXiv API calls.
 """
 
+import pytest
 from arxivql import Query as Q
 
 
@@ -301,3 +302,43 @@ class TestQuerySubmittedDate:
         dt_local = datetime(2023, 1, 1, 5, 0, tzinfo=tz)  # 05:00 UTC+9 = 20:00 UTC the day before
         result = str(Q.submitted_date(dt_local, None))
         assert "202212312000" in result  # 20:00 UTC
+
+    def test_with_string_yyyy(self):
+        """Year-only timestamp strings are validated and used as-is."""
+        result = str(Q.submitted_date("2023", "2024"))
+        assert result == "submittedDate:[2023 TO 2024]"
+
+    def test_with_string_yyyymm(self):
+        """Month-level timestamp strings (YYYYMM) are validated and used as-is."""
+        result = str(Q.submitted_date("202301", "202402"))
+        assert result == "submittedDate:[202301 TO 202402]"
+
+    def test_with_string_yyyymmdd(self):
+        """Day-level timestamp strings (YYYYMMDD) are validated and used as-is."""
+        result = str(Q.submitted_date("20230101", "20240101"))
+        assert result == "submittedDate:[20230101 TO 20240101]"
+
+    def test_with_string_yyyymmddhhmm(self):
+        """Minute-level timestamp strings (YYYYMMDDHHMM) are validated and used as-is."""
+        result = str(Q.submitted_date("202301010600", "202401010600"))
+        assert result == "submittedDate:[202301010600 TO 202401010600]"
+
+    def test_with_string_yyyymmddhhmmss(self):
+        """Second-level timestamp strings (YYYYMMDDHHMMSS) are validated and used as-is."""
+        result = str(Q.submitted_date("20230101060030", "20240101060030"))
+        assert result == "submittedDate:[20230101060030 TO 20240101060030]"
+
+    def test_invalid_string_format_raises(self):
+        """Invalid string formats for submitted_date raise ValueError."""
+        with pytest.raises(ValueError, match="digit-only timestamp"):
+            Q.submitted_date("2023-01-01", "20240101")
+
+    def test_invalid_string_date_raises(self):
+        """String with impossible date (e.g., Feb 30) raises ValueError."""
+        with pytest.raises(ValueError, match="not a valid datetime"):
+            Q.submitted_date("20230230", "20240101")
+
+    def test_invalid_type_raises(self):
+        """Non-supported types (e.g., int) raise ValueError."""
+        with pytest.raises(ValueError, match="only accepts datetime, date, str, or None"):
+            Q.submitted_date(2023, 2024)

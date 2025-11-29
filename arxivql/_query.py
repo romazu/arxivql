@@ -84,17 +84,13 @@ class Query:
 
     def _validate_negation(self):
         if self.negated:
-            raise ValueError(
-                "There is no standalone negation operator, only combined ANDNOT"
-            )
+            raise ValueError("There is no standalone negation operator, only combined ANDNOT")
 
     @staticmethod
     def _validate_term(term: Stringable, quote):
         value = str(term)
         if re.search('[")(]', value):
-            raise ValueError(
-                "Double quotes and parentheses cause problems and are forbidden"
-            )
+            raise ValueError("Double quotes and parentheses cause problems and are forbidden")
         if len(value.split()) > 1:
             if quote:
                 # Quote multi-term value.
@@ -168,28 +164,71 @@ class Query:
     @classmethod
     def submitted_date(
             cls,
-            start: Union[datetime, date, None] = None,
-            end: Union[datetime, date, None] = None,
+            start: Union[datetime, date, str, None] = None,
+            end: Union[datetime, date, str, None] = None,
     ) -> "Query":
         """
         Filter by submission date range (times in GMT).
 
         Args:
-            start: Range start (datetime, date, or None for open-ended).
-            end: Range end (datetime, date, or None for open-ended).
+            start: Range start.
+            end: Range end.
 
-        Timezone-aware datetimes are converted to UTC. Date objects default to 00:00 GMT.
+        Acceptable types:
+          - datetime
+          - date
+          - timestamp string in arXiv format (see below)
+          - None for open-ended ranges
+
+        Timezone-aware datetimes are converted to UTC.
+
+        The official arXiv datetime format for submittedDate filtering is YYYYMMDDHHMM.
+        See https://info.arxiv.org/help/api/user-manual.html#query_details
+        But in practice arXiv accepts shorter (partial) formats, and the ones that include seconds.
+
+        Seconds are ignored by the search engine.
         """
 
-        def format_date(d: Union[datetime, date]) -> str:
+        def format_date(d: Union[datetime, date, str]) -> str:
             if isinstance(d, datetime):
                 if d.tzinfo is not None:
                     d = d.astimezone(timezone.utc)
                 return d.strftime("%Y%m%d%H%M")
-            else:
-                # date only - default to midnight
+            elif isinstance(d, date):
                 return d.strftime("%Y%m%d") + "0000"
+            if isinstance(d, str):
+                return _validate_arxiv_datetime_string(d)
+            else:
+                raise ValueError("submitted_date only accepts datetime, date, str, or None")
 
         start_str = format_date(start) if start is not None else "100001010000"
         end_str = format_date(end) if end is not None else "900001010000"
         return cls(f"submittedDate:[{start_str} TO {end_str}]")
+
+
+def _validate_arxiv_datetime_string(d: str) -> str:
+    if not re.fullmatch(r"[0-9]{4,14}", d):
+        raise ValueError("submitted_date string must be a digit-only timestamp with 4 to 14 digits")
+
+    length = len(d)
+    # Choose appropriate format string based on length range and let
+    # datetime.strptime handle the actual parsing. This validates that the
+    # string represents a real date/time without changing its value.
+    if length <= 4:  # YYYY or YYYY+
+        fmt = "%Y"
+    elif length <= 6:  # up to YYYYMM
+        fmt = "%Y%m"
+    elif length <= 8:  # up to YYYYMMDD
+        fmt = "%Y%m%d"
+    elif length <= 10:  # up to YYYYMMDDHH
+        fmt = "%Y%m%d%H"
+    elif length <= 12:  # up to YYYYMMDDHHMM
+        fmt = "%Y%m%d%H%M"
+    else:  # up to YYYYMMDDHHMMSS
+        fmt = "%Y%m%d%H%M%S"
+
+    try:
+        datetime.strptime(d, fmt)
+    except ValueError:
+        raise ValueError("submitted_date string is not a valid datetime")
+    return d

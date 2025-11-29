@@ -58,6 +58,8 @@ Note: All searches are case-insensitive.
 Filter by submission date range using `datetime` or `date` objects.
 For convenience, `None` (the default) arguments make the date range open-ended.
 Timezone-aware datetimes are converted to UTC.
+Raw strings (e.g. `"2023"`, `"202301010600"`) are also accepted.
+They are validated and used as-is.
 
 ```python
 from datetime import date, datetime
@@ -77,6 +79,9 @@ Q.author("Terence Tao") & Q.submitted_date(date(2020, 1, 1), None)  # From 2020 
 
 Q.title("GPT") & ~Q.submitted_date(None, date(2023, 1, 1))  # Exclude before 2023
 # Output: (ti:GPT ANDNOT submittedDate:[100001010000 TO 202301010000])
+
+Q.submitted_date("2023", "202406011212")
+# Output: submittedDate:[2023 TO 202406011212]
 ```
 
 ### Logical Operations
