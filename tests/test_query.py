@@ -176,28 +176,28 @@ class TestQueryLogicalOperations:
         assert result == '((au:"Ilya Sutskever" AND ti:autoencoders) ANDNOT cat:cs.AI)'
 
     def test_and_with_string(self):
-        """AND operator with string auto-wraps in Query.all()."""
+        """AND operator with right-side string."""
         q = Q.category("cs.AI") & "machine learning"
         result = str(q)
-        assert result == '(cat:cs.AI AND all:"machine learning")'
+        assert result == "(cat:cs.AI AND (machine learning))"
 
     def test_rand_with_string(self):
-        """Right-side AND with string."""
-        q = "neural networks" & Q.category("cs.NE")
+        """AND operator with left-side string."""
+        q = "machine learning" & Q.category("cs.AI")
         result = str(q)
-        assert result == '(all:"neural networks" AND cat:cs.NE)'
+        assert result == "((machine learning) AND cat:cs.AI)"
 
     def test_or_with_string(self):
-        """OR operator with string."""
-        q = Q.category("cs.AI") | "transformers"
+        """OR operator with right-side string."""
+        q = Q.category("cs.NE") | "transformers"
         result = str(q)
-        assert result == "(cat:cs.AI OR all:transformers)"
+        assert result == "(cat:cs.NE OR (transformers))"
 
     def test_ror_with_string(self):
-        """Right-side OR with string."""
-        q = "transformers" | Q.category("cs.AI")
+        """OR operator with left-side string."""
+        q = "transformers" | Q.category("cs.NE")
         result = str(q)
-        assert result == "(all:transformers OR cat:cs.AI)"
+        assert result == "((transformers) OR cat:cs.NE)"
 
 
 class TestQueryStringConversion:
@@ -207,6 +207,12 @@ class TestQueryStringConversion:
         """__str__ returns same as to_string()."""
         q = Q.title("test")
         assert str(q) == q.to_string()
+
+    def test_from_raw_string(self):
+        """from_raw_string returns a Query with the exact raw content."""
+        raw = 'cat:cs.AI AND ti:"transformers"'
+        q = Q.from_raw_string(raw)
+        assert str(q) == f"({raw})"
 
 
 class TestQueryWithWildcards:

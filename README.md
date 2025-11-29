@@ -84,7 +84,7 @@ Complex queries can be constructed by combining field filters using regular pyth
 ```python
 a1 = Q.author("Ilya Sutskever")
 a2 = Q.author(("Geoffrey", "Hinton"))
-c1 = Q.category("cs.NE")  # See taxonomy section for preferred category construction
+c1 = Q.category("cs.NE")  # See taxonomy section for a more convenient way to specify categories
 c2 = Q.category("cs.CL")
 
 # AND operator
@@ -102,6 +102,18 @@ q3 = a1 & ~a2
 # Output:
 # (au:"Ilya Sutskever" ANDNOT au:(Geoffrey AND Hinton))
 ```
+
+Plain strings can also be combined with `Query` objects.
+In that case, strings are treated as raw query fragments, wrapped in parentheses before being combined:
+```python
+q = Q.category("cs.AI") & "machine learning"
+print(q)
+# (cat:cs.AI AND (machine learning))
+
+print("machine learning" & Q.category("cs.AI"))
+# ((machine learning) AND cat:cs.AI)
+```
+
 The following operations raise exceptions due to arXiv API limitations:
 ```python
 ~a1       # Error: standalone NOT operator not supported

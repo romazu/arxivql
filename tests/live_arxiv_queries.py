@@ -308,7 +308,6 @@ def test_submitted_date(max_results=None, timeout_seconds=None):
     # end = date(2024, 9, 2)  # still includes article 2409.01343 submitted 2024-09-02
     end = datetime.datetime(2024, 9, 3)  # excludes 2409.01343
     query = Q.author("Terence Tao") & ~ Q.submitted_date(start=None, end=end)
-    # query = '(au:"Terence Tao" ANDNOT submittedDate:[100001010000 TO])'
     results = run_query(
         query,
         max_results=max_results,

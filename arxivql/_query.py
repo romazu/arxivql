@@ -40,14 +40,14 @@ class Query:
 
     """
 
-    def __init__(self, content: str, negated=False):
+    def __init__(self, content: str, negated: bool = False):
         self.negated = negated
         self.content = content
 
     def __and__(self, other: Union[str, "Query"]):
         self._validate_negation()
         if isinstance(other, str):
-            other = Query.all(other)
+            other = Query.from_raw_string(other)
         if other.negated:
             operator = "ANDNOT"
         else:
@@ -57,19 +57,19 @@ class Query:
     def __or__(self, other: Union[str, "Query"]):
         self._validate_negation()
         if isinstance(other, str):
-            other = Query.all(other)
+            other = Query.from_raw_string(other)
         if other.negated:
             raise ValueError("There is no ORNOT operator in the arXiv API")
         return Query(f"({self.content} OR {other.content})")
 
     def __rand__(self, other: Union[str, "Query"]):
         if isinstance(other, str):
-            return Query.all(other) & self
+            return Query.from_raw_string(other) & self
         return NotImplemented
 
     def __ror__(self, other: Union[str, "Query"]):
         if isinstance(other, str):
-            return Query.all(other) | self
+            return Query.from_raw_string(other) | self
         return NotImplemented
 
     def __invert__(self):
@@ -122,6 +122,11 @@ class Query:
         term = cls._validate_term(value, quote)
         content = f"{prefix}:{term}"
         return cls(content)
+
+    @classmethod
+    def from_raw_string(cls, raw: str) -> "Query":
+        """Construct a Query from a raw string."""
+        return cls(f"({raw})")
 
     @classmethod
     def category(cls, category: FieldValue):
