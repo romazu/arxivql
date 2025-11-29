@@ -92,7 +92,12 @@ def run_query(query, max_results=None, description="", timeout_seconds: Optional
         print(f"Description: {description}")
     print("-" * 60)
 
-    search = arxiv.Search(query=str(query), max_results=max_results, sort_by=arxiv.SortCriterion.SubmittedDate)
+    search = arxiv.Search(
+        query=str(query),
+        max_results=max_results,
+        sort_by=arxiv.SortCriterion.SubmittedDate,
+        sort_order=arxiv.SortOrder.Ascending,
+    )
     client = arxiv.Client()
 
     with _query_timeout(timeout_seconds):

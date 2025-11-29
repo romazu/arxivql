@@ -1,18 +1,37 @@
-# arXiv Query Language
+# arXiv Query Language and Tools
 
 [![PyPI](https://img.shields.io/pypi/v/arxivql)](https://pypi.org/project/arxivql/)
 [![Tests](https://img.shields.io/github/actions/workflow/status/romazu/arxivql/tests.yml?branch=main)](https://github.com/romazu/arxivql/actions?query=branch%3Amain)
 
-The arXiv search API enables filtering articles based on various **fields** such as "title", "author", "category", etc.
-Queries follow the format `{field_prefix}:{value}`, e.g., `ti:AlexNet`.
-The query language supports combining field filters using logical operators AND, OR, ANDNOT.
-Constructing these queries manually presents two challenges:
-1. Writing syntactically correct query strings with abbreviated field prefixes
-2. Navigating numerous arXiv category identifiers
+Working with arXiv data involves several recurring challenges:
+building syntactically correct search queries, navigating the category taxonomy with its legacy and modern schemes,
+and parsing article identifiers that come in multiple formats.
+**arxivql** brings these arXiv-specific structures into Python as first-class objects.
 
-This repository provides a pythonic query builder to address both challenges.
-See the [arxiv documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for the official Search API details.
-See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for API behavior details and caveats.
+**Queries** — Build valid arXiv search strings from Python objects using a simple DSL, without memorizing field prefixes or logical operators.
+
+**Taxonomy** — Navigate groups, archives and categories programmatically. Use the same taxonomy both for constructing category filters and for interpreting categories in search results or any other data source.
+
+**Article identifiers** — Parse, normalize and inspect arXiv identifiers (legacy and modern formats) from search results or other sources.
+
+**arxivql** focuses on data structures and leaves API requests to other libraries.
+Pair it with the excellent [arxiv.py](https://pypi.org/project/arxiv/) or any other client you prefer.
+
+What it feels like:
+```python
+# Build a query using arxivql DSL and pythonic category taxonomy
+query = (Q.title("LLM") | Q.title("large language model")) & Q.category(T.cs.AI) &~ Q.abstract("transformer")
+
+# Search using, e.g., arxiv.py library
+result = next(arxiv.Client().results(arxiv.Search(query)))
+
+# Parse article identifier and category
+cat = categories_by_id[result.categories[0]]
+aid = ArticleId.from_id(result.get_short_id())
+
+print(aid.id, aid.base_id, aid.year, aid.month, aid.number, aid.version)
+print(cat.id, cat.name, cat.description)
+```
 
 ## Installation
 ```shell
@@ -21,6 +40,10 @@ pip install arxivql
 
 ## Query
 The `Query` class provides constructors for all supported arXiv fields and methods to combine them.
+
+See the [arxiv documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for the official Search API details.
+
+See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for API behavior details and caveats.
 
 ### Field Constructors
 
@@ -128,7 +151,30 @@ a1 | ~a2  # Error: ORNOT operator not supported
 ### Wildcards
 Wildcards (`?` and `*`) can be used in queries as usual. See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for more details.
 
-### Category Taxonomy
+### Usage with Python arXiv Client
+Constructed queries can be directly used in [python arXiv API wrapper](https://pypi.org/project/arxiv):
+
+```python
+# pip install arxiv
+
+import arxiv
+from arxivql import Query as Q, Taxonomy as T
+
+query = Q.author("Ilya Sutskever") & Q.title("autoencoders") & ~Q.category(T.cs.AI)
+search = arxiv.Search(query=query)
+client = arxiv.Client()
+results = list(client.results(search))
+
+print(f"query = {query}")
+for result in results:
+    print(result.get_short_id(), result.title)
+
+# Output:
+# query = ((au:"Ilya Sutskever" AND ti:autoencoders) ANDNOT cat:cs.AI)
+# 1611.02731v2 Variational Lossy Autoencoder
+```
+
+## Category Taxonomy
 The `Taxonomy` class provides a structured interface for managing arXiv categories.
 Basic usage:
 
@@ -231,28 +277,30 @@ print(Q.category(catalog.ml_karpathy))
 # cat:(cs.CV cs.AI cs.CL cs.LG cs.NE stat.ML)
 ```
 
-### Usage with Python arXiv Client
-Constructed queries can be directly used in [python arXiv API wrapper](https://pypi.org/project/arxiv):
+## Article Identifiers
+
+arXiv uses two identifier schemes: the modern `YYMM.NNNN[N]` format (since April 2007) and the legacy `archive[.subject]/YYMMNNN` format.
+The helper `ArticleId` class parses both into a structured dataclass.
 
 ```python
-# pip install arxiv
+from arxivql import ArticleId
 
-import arxiv
-from arxivql import Query as Q, Taxonomy as T
+aid = ArticleId.from_id("arXiv:quant-ph/0201082v1")
 
-query = Q.author("Ilya Sutskever") & Q.title("autoencoders") & ~Q.category(T.cs.AI)
-search = arxiv.Search(query=query)
-client = arxiv.Client()
-results = list(client.results(search))
+aid.base_id   # "quant-ph/0201082"
+aid.version   # 1 (None if no explicit version)
+aid.year      # 2002
+aid.month     # 1
+aid.number    # 82
+aid.prefix    # "arXiv"
+aid.archive   # "quant-ph" (None for modern identifiers)
 
-print(f"query = {query}")
-for result in results:
-    print(result.get_short_id(), result.title)
-
-# Output:
-# query = ((au:"Ilya Sutskever" AND ti:autoencoders) ANDNOT cat:cs.AI)
-# 1611.02731v2 Variational Lossy Autoencoder
+aid.id        # "arXiv:quant-ph/0201082v1" (reconstructed canonical id)
 ```
+
+The parser is tested on all article identifiers in [full arXiv metadata dump](https://www.kaggle.com/datasets/Cornell-University/arxiv).
+
+See [arXiv identifiers](https://info.arxiv.org/help/arxiv_identifier.html) official documentation for more details on formats.
 
 ## Important arXiv Search API Behavior
 - Category searches consider all listed categories, not only primary ones.
