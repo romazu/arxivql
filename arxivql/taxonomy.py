@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Iterator
+from typing import Iterator, Dict
 
 
 @dataclasses.dataclass
@@ -711,7 +711,19 @@ class Taxonomy:
         )
 
     @dataclasses.dataclass
-    class q_bio(metaclass=ArchiveMeta("q-bio.*")):
+    class q_bio(metaclass=ArchiveMeta("q-bio*")):
+        # Note that the ArchiveMeta string allows the general legacy category "q-bio" without dot "."
+        # In other words the "unclassified" general legacy category is effectively included in this archive.
+        # Search for "reorg" here:
+        # https://info.arxiv.org/new/
+        general = Category(
+            id="q-bio",
+            name="(Legacy) Quantitative Biology",
+            group_name="Quantitative Biology",
+            archive_id="q-bio",
+            archive_name="Quantitative Biology",
+            description="A special legacy category that includes all articles not classified into new taxonomy",
+        )
         BM = Category(
             id="q-bio.BM",
             name="Biomolecules",
@@ -921,11 +933,13 @@ class Taxonomy:
 
     @dataclasses.dataclass
     class astro_ph(metaclass=ArchiveMeta("astro-ph*")):
-        # Look for reorganisations here:
+        # Note that the ArchiveMeta string allows the general legacy category "astro-ph" without dot "."
+        # In other words the "unclassified" general legacy category is effectively included in this archive.
+        # Search for "reorg" here:
         # https://info.arxiv.org/new/
         general = Category(
             id="astro-ph",
-            name="General Astrophysics",
+            name="(Legacy) Astrophysics",
             group_name="Physics",
             archive_id="astro-ph",
             archive_name="Astrophysics",
@@ -982,12 +996,14 @@ class Taxonomy:
 
     @dataclasses.dataclass
     class cond_mat(metaclass=ArchiveMeta("cond-mat*")):
-        # Look for reorganisations here:
+        # Note that the ArchiveMeta string allows the general legacy category "cond-mat" without dot "."
+        # In other words the "unclassified" general legacy category is effectively included in this archive.
+        # Search for "reorg" here:
         # https://info.arxiv.org/new/
         # https://info.arxiv.org/new/condreorg.html
         general = Category(
             id="cond-mat",
-            name="General Condensed Matter",
+            name="(Legacy) Condensed Matter",
             group_name="Physics",
             archive_id="cond-mat",
             archive_name="Condensed Matter",
@@ -1108,22 +1124,6 @@ class Taxonomy:
             archive_name="Nonlinear Sciences",
             description="Exactly solvable systems, integrable PDEs, integrable ODEs, Painleve analysis, integrable discrete maps, solvable lattice models, integrable quantum systems",
         )
-
-    # TODO: Add all legacy categories.
-    # # Legacy.
-    # # Note: always comes with legacy cond-mat.
-    # # Look for reorganisations here:
-    # # https://info.arxiv.org/new/
-    # @dataclasses.dataclass
-    # class chem_ph(metaclass=ArchiveMeta("chem-ph")):
-    #     general = Category(
-    #         id="chem-ph",
-    #         name="General Chemical Physics",
-    #         group_name="Physics",
-    #         archive_id="chem-ph",
-    #         archive_name="Chemical Physics",
-    #         description="A special legacy category that includes all articles not classified into new taxonomy",
-    #     )
 
     @dataclasses.dataclass
     class physics(metaclass=ArchiveMeta("physics.*")):
@@ -1304,6 +1304,7 @@ class Taxonomy:
             description="Space plasma physics. Heliophysics. Space weather. Planetary magnetospheres, ionospheres and magnetotail. Auroras. Interplanetary space. Cosmic rays. Synchrotron radiation. Radio astronomy.",
         )
 
+    # Standalone categories.
     gr_qc = Category(
         id="gr-qc",
         name="General Relativity and Quantum Cosmology",
@@ -1377,6 +1378,190 @@ class Taxonomy:
         description="Description coming soon",
     )
 
+    # Below are the legacy categories.
+    # For more details look for "reorg" here:
+    # https://info.arxiv.org/new/
+    # https://info.arxiv.org/new/condreorg.html
+    #
+    # Summary of reorganizations:
+    #   astro-ph, cond-mat, q-bio                         -> became archives with subject classes
+    #   alg-geom, dg-ga, funct-an, q-alg                  -> folded into math archive (Dec 1997)
+    #   supr-con, mtrl-th                                 -> moved into cond-mat
+    #   adap-org, chao-dyn, comp-gas, patt-sol, solv-int  -> consolidated into nlin archive
+    #   acc-phys, ao-sci, atom-ph, plasm-ph, chem-ph      -> became physics.* subject classes
+    #   cmp-lg                                            -> became cs.CL
+    #   bayes-an                                          -> statistics/analysis (short-lived)
+    #
+    #   Category   Name                                      Superseded by
+    #   --------   ----                                      -------------
+    #   astro-ph   Astrophysics                              astro-ph.*
+    #   cond-mat   Condensed Matter                          cond-mat.*
+    #   q-bio      Quantitative Biology                      q-bio.*
+    #   acc-phys   Accelerator Physics                       physics.acc-ph
+    #   adap-org   Adaptation and Self-Organizing Systems    nlin.AO
+    #   alg-geom   Algebraic Geometry                        math.AG
+    #   ao-sci     Atmospheric and Oceanic Physics           physics.ao-ph
+    #   atom-ph    Atomic Physics                            physics.atom-ph
+    #   bayes-an   Bayesian Analysis                         physics.data-an / stat
+    #   chao-dyn   Chaotic Dynamics                          nlin.CD
+    #   chem-ph    Chemical Physics                          physics.chem-ph
+    #   cmp-lg     Computation and Language                  cs.CL
+    #   comp-gas   Cellular Automata and Lattice Gases       nlin.CG
+    #   dg-ga      Differential Geometry                     math.DG
+    #   funct-an   Functional Analysis                       math.FA
+    #   mtrl-th    Materials Theory                          cond-mat.mtrl-sci
+    #   patt-sol   Pattern Formation and Solitons            nlin.PS
+    #   plasm-ph   Plasma Physics                            physics.plasm-ph
+    #   q-alg      Quantum Algebra                           math.QA
+    #   solv-int   Exactly Solvable and Integrable Systems   nlin.SI
+    #   supr-con   Superconductivity                         cond-mat.supr-con
+
+    acc_phys = Category(
+        id="acc-phys",
+        name="(Legacy) Accelerator Physics",
+        group_name="Physics",
+        archive_id="acc-phys",
+        archive_name="Accelerator Physics",
+        description="Superseded by physics.acc-ph",
+    )
+    adap_org = Category(
+        id="adap-org",
+        name="(Legacy) Adaptation and Self-Organizing Systems",
+        group_name="Physics",
+        archive_id="adap-org",
+        archive_name="Adaptation and Self-Organizing Systems",
+        description="Superseded by nlin.AO",
+    )
+    alg_geom = Category(
+        id="alg-geom",
+        name="(Legacy) Algebraic Geometry",
+        group_name="Mathematics",
+        archive_id="alg-geom",
+        archive_name="Algebraic Geometry",
+        description="Superseded by math.AG",
+    )
+    ao_sci = Category(
+        id="ao-sci",
+        name="(Legacy) Atmospheric and Oceanic Physics",
+        group_name="Physics",
+        archive_id="ao-sci",
+        archive_name="Atmospheric and Oceanic Physics",
+        description="Superseded by physics.ao-ph",
+    )
+    atom_ph = Category(
+        id="atom-ph",
+        name="(Legacy) Atomic Physics",
+        group_name="Physics",
+        archive_id="atom-ph",
+        archive_name="Atomic Physics",
+        description="Superseded by physics.atom-ph",
+    )
+    bayes_an = Category(
+        id="bayes-an",
+        name="(Legacy) Bayesian Analysis",
+        group_name="Physics",
+        archive_id="bayes-an",
+        archive_name="Bayesian Analysis",
+        description="Superseded by physics.data-an and stat",
+    )
+    chao_dyn = Category(
+        id="chao-dyn",
+        name="(Legacy) Chaotic Dynamics",
+        group_name="Physics",
+        archive_id="chao-dyn",
+        archive_name="Chaotic Dynamics",
+        description="Superseded by nlin.CD",
+    )
+    chem_ph = Category(
+        # Note: chem-ph always comes with legacy cond-mat.
+        id="chem-ph",
+        name="(Legacy) Chemical Physics",
+        group_name="Physics",
+        archive_id="chem-ph",
+        archive_name="Chemical Physics",
+        description="Superseded by physics.chem-ph",
+    )
+    cmp_lg = Category(
+        id="cmp-lg",
+        name="(Legacy) Computation and Language",
+        group_name="Computer Science",
+        archive_id="cmp-lg",
+        archive_name="Computation and Language",
+        description="Superseded by cs.CL",
+    )
+    comp_gas = Category(
+        id="comp-gas",
+        name="(Legacy) Cellular Automata and Lattice Gases",
+        group_name="Physics",
+        archive_id="comp-gas",
+        archive_name="Cellular Automata and Lattice Gases",
+        description="Superseded by nlin.CG",
+    )
+    dg_ga = Category(
+        id="dg-ga",
+        name="(Legacy) Differential Geometry",
+        group_name="Mathematics",
+        archive_id="dg-ga",
+        archive_name="Differential Geometry",
+        description="Superseded by math.DG",
+    )
+    funct_an = Category(
+        id="funct-an",
+        name="(Legacy) Functional Analysis",
+        group_name="Mathematics",
+        archive_id="funct-an",
+        archive_name="Functional Analysis",
+        description="Superseded by math.FA",
+    )
+    mtrl_th = Category(
+        id="mtrl-th",
+        name="(Legacy) Materials Theory",
+        group_name="Physics",
+        archive_id="mtrl-th",
+        archive_name="Materials Theory",
+        description="Superseded by cond-mat.mtrl-sci",
+    )
+    patt_sol = Category(
+        id="patt-sol",
+        name="(Legacy) Pattern Formation and Solitons",
+        group_name="Physics",
+        archive_id="patt-sol",
+        archive_name="Pattern Formation and Solitons",
+        description="Superseded by nlin.PS",
+    )
+    plasm_ph = Category(
+        id="plasm-ph",
+        name="(Legacy) Plasma Physics",
+        group_name="Physics",
+        archive_id="plasm-ph",
+        archive_name="Plasma Physics",
+        description="Superseded by physics.plasm-ph",
+    )
+    q_alg = Category(
+        id="q-alg",
+        name="(Legacy) Quantum Algebra",
+        group_name="Mathematics",
+        archive_id="q-alg",
+        archive_name="Quantum Algebra",
+        description="Superseded by math.QA",
+    )
+    solv_int = Category(
+        id="solv-int",
+        name="(Legacy) Exactly Solvable and Integrable Systems",
+        group_name="Physics",
+        archive_id="solv-int",
+        archive_name="Exactly Solvable and Integrable Systems",
+        description="Superseded by nlin.SI",
+    )
+    supr_con = Category(
+        id="supr-con",
+        name="(Legacy) Superconductivity",
+        group_name="Physics",
+        archive_id="supr-con",
+        archive_name="Superconductivity",
+        description="Superseded by cond-mat.supr-con",
+    )
+
 
 def _get_categories_by_id(root):
     categories_by_id = {}
@@ -1400,13 +1585,40 @@ def _get_archives():
     return archives
 
 
-categories_by_id = _get_categories_by_id(Taxonomy)
+categories_by_id: Dict[str, Category] = _get_categories_by_id(Taxonomy)
 
 
 @dataclasses.dataclass
 class catalog:
     all_archives = _get_archives()
     all_categories = list(categories_by_id.values())
+
+    # Legacy categories.
+    legacy = [
+        # General legacy archive categories
+        Taxonomy.astro_ph.general,
+        Taxonomy.cond_mat.general,
+        Taxonomy.q_bio.general,
+        # Explicit legacy category IDs
+        Taxonomy.acc_phys,
+        Taxonomy.adap_org,
+        Taxonomy.alg_geom,
+        Taxonomy.ao_sci,
+        Taxonomy.atom_ph,
+        Taxonomy.bayes_an,
+        Taxonomy.chao_dyn,
+        Taxonomy.chem_ph,
+        Taxonomy.cmp_lg,
+        Taxonomy.comp_gas,
+        Taxonomy.dg_ga,
+        Taxonomy.funct_an,
+        Taxonomy.mtrl_th,
+        Taxonomy.patt_sol,
+        Taxonomy.plasm_ph,
+        Taxonomy.q_alg,
+        Taxonomy.solv_int,
+        Taxonomy.supr_con,
+    ]
 
     # High Energy Physics categories.
     hep = [

@@ -11,8 +11,8 @@ class TestCategoriesById:
     """Tests for categories_by_id dictionary."""
 
     def test_categories_by_id_count(self):
-        """Should have 157 categories - from README."""
-        assert len(categories_by_id) == 157
+        """Should have 176 categories (including legacy) - from README."""
+        assert len(categories_by_id) == 176
 
     def test_lookup_by_id(self):
         """Can lookup category by id string."""
@@ -47,8 +47,8 @@ class TestCatalogAllCategories:
     """Tests for catalog.all_categories."""
 
     def test_all_categories_count(self):
-        """Should have 157 categories - from README."""
-        assert len(catalog.all_categories) == 157
+        """Should have 176 categories (including legacy) - from README."""
+        assert len(catalog.all_categories) == 176
 
     def test_all_categories_are_category_instances(self):
         """All items are Category instances."""
@@ -70,8 +70,8 @@ class TestCatalogAllArchives:
     """Tests for catalog.all_archives."""
 
     def test_all_archives_count(self):
-        """Should have 20 archives - from README."""
-        assert len(catalog.all_archives) == 20
+        """Should have 38 archives (including legacy) - from README."""
+        assert len(catalog.all_archives) == 38
 
     def test_all_archives_query(self):
         """Query with all archives - from README example."""
@@ -121,6 +121,13 @@ class TestCatalogVariants:
     def test_hep_count(self):
         """Should have 4 HEP categories."""
         assert len(catalog.hep) == 4
+
+    def test_legacy_list_length_and_names(self):
+        """catalog.legacy has expected size and legacy marker in names."""
+        # 3 general legacy archives + 18 explicit legacy categories
+        assert len(catalog.legacy) == 21
+        for cat in catalog.legacy:
+            assert "(Legacy)" in cat.name
 
     def test_catalog_as_tuple_creates_and(self):
         """Converting ml_broad to tuple creates AND query."""

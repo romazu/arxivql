@@ -77,7 +77,7 @@ class TestTaxonomyArchives:
 
     def test_q_bio_archive_str(self):
         """q-bio archive string representation (note underscore in Python)."""
-        assert str(T.q_bio) == "q-bio.*"
+        assert str(T.q_bio) == "q-bio*"
 
     def test_q_fin_archive_str(self):
         """q-fin archive string representation."""
@@ -231,9 +231,14 @@ class TestLegacyCategories:
     def test_astro_ph_general(self):
         """astro-ph has a general legacy category."""
         assert T.astro_ph.general.id == "astro-ph"
-        assert "legacy" in T.astro_ph.general.description.lower()
+        assert "(Legacy)" in T.astro_ph.general.name
 
     def test_cond_mat_general(self):
         """cond-mat has a general legacy category."""
         assert T.cond_mat.general.id == "cond-mat"
-        assert "legacy" in T.cond_mat.general.description.lower()
+        assert "(Legacy)" in T.cond_mat.general.name
+
+    def test_q_bio_general(self):
+        """q-bio has a general legacy category."""
+        assert T.q_bio.general.id == "q-bio"
+        assert "(Legacy)" in T.q_bio.general.name

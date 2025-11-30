@@ -14,6 +14,8 @@ dist/
 
 .idea
 
+.DS_Store
+
 scratch*
 backup*
 notes.txt

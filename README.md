@@ -176,6 +176,9 @@ for result in results:
 ```
 
 ## Category Taxonomy
+
+### Usage
+
 The `Taxonomy` class provides a structured interface for managing arXiv categories.
 Basic usage:
 
@@ -239,27 +242,27 @@ from arxivql.taxonomy import catalog, categories_by_id
 
 print(len(categories_by_id.keys()))
 # Output:
-# 157
+# 176
 
 print(len(catalog.all_categories))
 # Output:
-# 157
+# 176
 
 print(len(catalog.all_archives))
 print(Q.category(catalog.all_archives))
 # Output:
-# 20
-# cat:(cs.* econ.* eess.* math.* q-bio.* q-fin.* stat.* astro-ph* cond-mat* nlin.* physics.* gr-qc hep-ex hep-lat hep-ph hep-th math-ph nucl-ex nucl-th quant-ph)
+# 38
+# cat:(cs.* econ.* eess.* math.* q-bio* q-fin.* stat.* astro-ph* cond-mat* nlin.* physics.* gr-qc hep-ex hep-lat hep-ph hep-th math-ph nucl-ex nucl-th quant-ph acc-phys adap-org alg-geom ao-sci atom-ph bayes-an chao-dyn chem-ph cmp-lg comp-gas dg-ga funct-an mtrl-th patt-sol plasm-ph q-alg solv-int supr-con)
 
 archive_sizes = [len(list(archive)) for archive in catalog.all_archives]
 print(archive_sizes)
 # Output:
-# [40, 3, 4, 32, 10, 9, 6, 7, 10, 5, 22, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+# [40, 3, 4, 32, 11, 9, 6, 7, 10, 5, 22, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 archive_sizes = [len(archive) for archive in catalog.all_archives]
 print(archive_sizes)
 # Output:
-# [40, 3, 4, 32, 10, 9, 6, 7, 10, 5, 22, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+# [40, 3, 4, 32, 11, 9, 6, 7, 10, 5, 22, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 # Broad Machine Learning categories, see official classification guide
 # https://blog.arxiv.org/2019/12/05/arxiv-machine-learning-classification-guide
@@ -276,6 +279,74 @@ print(Q.category(catalog.ml_karpathy))
 # Output:
 # 6
 # cat:(cs.CV cs.AI cs.CL cs.LG cs.NE stat.ML)
+
+# Legacy categories
+print(len(catalog.legacy))
+# Output:
+# 21
+```
+
+Because the **arxivql** taxonomy is complete (see [Legacy Categories](#legacy-categories) below),
+you can reliably map all category IDs from search results to `Category` objects:
+
+```python
+from arxivql.taxonomy import categories_by_id
+
+# Example: category IDs from an article's metadata
+article_categories = ["cs.LG", "q-bio.BM", "cond-mat"]
+
+# Map to Category objects
+for cat_id in article_categories:
+    cat = categories_by_id[cat_id]
+    print(f"{cat.id}, {cat.name}, {cat.archive_name}")
+# Output:
+# cs.LG, Machine Learning, Computer Science
+# q-bio.BM, Biomolecules, Quantitative Biology
+# cond-mat, (Legacy) Condensed Matter, Condensed Matter
+```
+
+### Legacy Categories
+
+The taxonomy includes 21 legacy arXiv categories that were reorganized into modern archives or subject classes (see `catalog.legacy` in the example above).
+
+Three of these legacy categories (`astro-ph`, `cond-mat`, `q-bio`) share their ID with modern archives.
+For convenience, they are included in their corresponding archives as `general` (e.g., `T.astro_ph.general`, `T.cond_mat.general`, `T.q_bio.general`).
+
+Summary of reorganizations (search "reorg" in [arXiv news archive](https://info.arxiv.org/new/) 
+and see [cond-mat reorganization](https://info.arxiv.org/new/condreorg.html) for details):
+
+| Legacy | Superseded by |
+|--------|---------------|
+| `astro-ph`, `cond-mat`, `q-bio` | Became archives with subject classes |
+| `alg-geom`, `dg-ga`, `funct-an`, `q-alg` | Folded into `math` archive (Dec 1997) |
+| `supr-con`, `mtrl-th` | Moved into `cond-mat` |
+| `adap-org`, `chao-dyn`, `comp-gas`, `patt-sol`, `solv-int` | Consolidated into `nlin` archive |
+| `acc-phys`, `ao-sci`, `atom-ph`, `plasm-ph`, `chem-ph` | Became `physics.*` subject classes |
+| `cmp-lg` | Became `cs.CL` |
+| `bayes-an` | Short-lived; see `physics.data-an` / `stat` |
+
+Most likely, there were other categories historically, but they were all reclassified into the modern taxonomy or the legacy categories above.
+The modern 155 categories and 21 legacy ones cover all categories present in the current arXiv database.
+The completeness of **arxivql** taxonomy was verified against the [full arXiv metadata dump](https://www.kaggle.com/datasets/Cornell-University/arxiv):
+```python
+import json
+from arxivql.taxonomy import categories_by_id
+
+num_articles = 0
+num_categories = 0
+with open("arxiv-metadata-oai-snapshot.json", "r") as fp:
+    for line in fp:
+        info = json.loads(line)
+        article_categories = info["categories"].split()
+        num_articles += 1
+        num_categories += len(article_categories)
+        for category in article_categories:
+            assert category in categories_by_id
+print("total articles:  ", num_articles)
+print("total categories:", num_categories)
+# Output:
+# total articles:   2890332
+# total categories: 4978826
 ```
 
 ## Article Identifiers
