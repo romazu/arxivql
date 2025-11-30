@@ -55,14 +55,15 @@ print(Q.title('word'))
 # Output:
 # ti:word
 
-# Exact phrase and author name searches
+# "All-word" phrase and author name searches
 print(Q.abstract('some words'))
 print(Q.author("Ilya Sutskever"))
 # Output:
 # abs:"some words"
 # au:"Ilya Sutskever"
 ```
-Multi-word field values are automatically double-quoted for exact phrase matching.
+Multi-word field values are automatically double-quoted for "all-words" matching
+(see the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section on quotes behavior below).
 For ANY word matching, pass a **list** to the constructor:
 ```python
 Q.abstract(["Syntactic", "natural language processing", "synthetic corpus"])
@@ -323,9 +324,11 @@ See [arXiv identifiers](https://info.arxiv.org/help/arxiv_identifier.html) offic
   - Because of this normalization, the following queries are equivalent:
 
     ```text
+    abs:"self-attention mechanisms"
+    abs:"self AND attention AND mechanisms"
+    abs:(self AND attention AND mechanisms)
     abs:("self-attention mechanisms")
     abs:("Mechanisms Attention Self")
-    abs:"self-attention mechanisms"
     abs:"selfs attentive mechanics"
     abs:"-- selfs -- --- attentive----mechanics --"
     abs:("-- -- mechaniC --- ATTENTIVE----seLfs --")

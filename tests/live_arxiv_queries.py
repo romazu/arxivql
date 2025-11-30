@@ -18,7 +18,7 @@ from contextlib import contextmanager
 from typing import Optional
 
 try:
-    import arxiv
+    import arxiv  # noqa: F401
 except ImportError:
     print("This script requires the 'arxiv' package.")
     print("Install with: pip install arxiv")
@@ -96,7 +96,7 @@ def run_query(query, max_results=None, description="", timeout_seconds: Optional
         query=str(query),
         max_results=max_results,
         sort_by=arxiv.SortCriterion.SubmittedDate,
-        sort_order=arxiv.SortOrder.Ascending,
+        # sort_order=arxiv.SortOrder.Ascending,
     )
     client = arxiv.Client()
 
@@ -280,6 +280,7 @@ def test_abstract_search(max_results=None, timeout_seconds=None):
     )
     for result in results:
         assert is_match_normaliized("self attent mechan", result.summary)
+
 
 def test_abstract_search_normalization(max_results=None, timeout_seconds=None):
     """Test abstract field search with obfuscated input."""
