@@ -310,7 +310,7 @@ for cat_id in article_categories:
 The taxonomy includes 21 legacy arXiv categories that were reorganized into modern archives or subject classes (see `catalog.legacy` in the example above).
 
 Three of these legacy categories (`astro-ph`, `cond-mat`, `q-bio`) share their ID with modern archives.
-For convenience, they are included in their corresponding archives as `general` (e.g., `T.astro_ph.general`, `T.cond_mat.general`, `T.q_bio.general`).
+For convenience, they are included in their corresponding archives as `legacy` (e.g., `T.astro_ph.legacy`, `T.cond_mat.legacy`, `T.q_bio.legacy`).
 
 Summary of reorganizations (search "reorg" in [arXiv news archive](https://info.arxiv.org/new/) 
 and see [cond-mat reorganization](https://info.arxiv.org/new/condreorg.html) for details):

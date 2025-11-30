@@ -712,11 +712,11 @@ class Taxonomy:
 
     @dataclasses.dataclass
     class q_bio(metaclass=ArchiveMeta("q-bio*")):
-        # Note that the ArchiveMeta string allows the general legacy category "q-bio" without dot "."
-        # In other words the "unclassified" general legacy category is effectively included in this archive.
+        # Note that the ArchiveMeta string allows the legacy category "q-bio" without dot "."
+        # In other words the unclassified legacy category is effectively included in this archive.
         # Search for "reorg" here:
         # https://info.arxiv.org/new/
-        general = Category(
+        legacy = Category(
             id="q-bio",
             name="(Legacy) Quantitative Biology",
             group_name="Quantitative Biology",
@@ -933,11 +933,11 @@ class Taxonomy:
 
     @dataclasses.dataclass
     class astro_ph(metaclass=ArchiveMeta("astro-ph*")):
-        # Note that the ArchiveMeta string allows the general legacy category "astro-ph" without dot "."
-        # In other words the "unclassified" general legacy category is effectively included in this archive.
+        # Note that the ArchiveMeta string allows the legacy category "astro-ph" without dot "."
+        # In other words the unclassified legacy category is effectively included in this archive.
         # Search for "reorg" here:
         # https://info.arxiv.org/new/
-        general = Category(
+        legacy = Category(
             id="astro-ph",
             name="(Legacy) Astrophysics",
             group_name="Physics",
@@ -996,12 +996,12 @@ class Taxonomy:
 
     @dataclasses.dataclass
     class cond_mat(metaclass=ArchiveMeta("cond-mat*")):
-        # Note that the ArchiveMeta string allows the general legacy category "cond-mat" without dot "."
-        # In other words the "unclassified" general legacy category is effectively included in this archive.
+        # Note that the ArchiveMeta string allows the legacy category "cond-mat" without dot "."
+        # In other words the unclassified legacy category is effectively included in this archive.
         # Search for "reorg" here:
         # https://info.arxiv.org/new/
         # https://info.arxiv.org/new/condreorg.html
-        general = Category(
+        legacy = Category(
             id="cond-mat",
             name="(Legacy) Condensed Matter",
             group_name="Physics",
@@ -1595,11 +1595,11 @@ class catalog:
 
     # Legacy categories.
     legacy = [
-        # General legacy archive categories
-        Taxonomy.astro_ph.general,
-        Taxonomy.cond_mat.general,
-        Taxonomy.q_bio.general,
-        # Explicit legacy category IDs
+        # Legacy categories, included in modern archives
+        Taxonomy.astro_ph.legacy,
+        Taxonomy.cond_mat.legacy,
+        Taxonomy.q_bio.legacy,
+        # Standalone legacy categories
         Taxonomy.acc_phys,
         Taxonomy.adap_org,
         Taxonomy.alg_geom,
