@@ -364,6 +364,17 @@ print("total categories:", num_categories)
 # total categories: 4978826
 ```
 
+According to the official [arXiv Category Taxonomy](https://arxiv.org/category_taxonomy) documentation,
+the following modern categories are defined as aliases:
+- `cs.NA` is an alias for `math.NA`
+- `cs.SY` is an alias for `eess.SY`
+- `math.IT` is an alias for `cs.IT`
+- `math.MP` is an alias for `math-ph`
+- `q-fin.EC` is an alias for `econ.GN`
+- `stat.TH` is an alias for `math.ST`
+
+Interestingly enough, only three of these (`math.IT`, `math.MP`, `stat.TH`) never show up as primary categories in article metadata.
+
 ## Article Identifiers
 
 arXiv uses two identifier schemes: the modern `YYMM.NNNN[N]` format (since April 2007) and the legacy `archive[.subject]/YYMMNNN` format.
