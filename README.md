@@ -150,7 +150,8 @@ a1 | ~a2  # Error: ORNOT operator not supported
 ```
 
 ### Wildcards
-Wildcards (`?` and `*`) can be used in queries as usual. See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for more details.
+Wildcards (`?` and `*`) can be used in queries as usual, but there are some important caveats.
+See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for more details.
 
 ### Usage with Python arXiv Client
 Constructed queries can be directly used in [python arXiv API wrapper](https://pypi.org/project/arxiv):
@@ -232,6 +233,20 @@ print("description: ", category.description)
 # archive_id:   astro-ph
 # archive_name: Astrophysics
 # description:  Cosmic ray production, acceleration, propagation, detection. Gamma ray astronomy and bursts, X-rays, charged particles, supernovae and other explosive phenomena, stellar remnants and accretion systems, jets, microquasars, neutron stars, pulsars, black holes
+```
+
+`Category` is an immutable, hashable dataclass, so you can safely use category objects as keys in dictionaries or members of sets.
+
+```python
+from arxivql import Taxonomy as T
+
+seen = {T.cs.AI, T.cs.AI, T.stat.ML}
+cats_map = {T.cs.AI: "my info"}
+print(sorted(c.id for c in seen))
+print(cats_map[T.cs.AI])
+# Output:
+# ['cs.AI', 'stat.ML']
+# my info
 ```
 
 The library also provides a useful category catalog.

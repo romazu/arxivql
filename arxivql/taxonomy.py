@@ -1,15 +1,15 @@
-import dataclasses
+from dataclasses import dataclass, field
 from typing import Iterator, Dict
 
 
-@dataclasses.dataclass
+@dataclass(frozen=True)
 class Category:
     id: str
-    name: str
-    group_name: str
-    archive_id: str
-    archive_name: str
-    description: str
+    name: str = field(hash=False, compare=False)
+    group_name: str = field(hash=False, compare=False)
+    archive_id: str = field(hash=False, compare=False)
+    archive_name: str = field(hash=False, compare=False)
+    description: str = field(hash=False, compare=False)
 
     def __str__(self):
         return self.to_string()
@@ -60,13 +60,13 @@ def ArchiveMeta(s: str):
     return _ArchiveMeta
 
 
-@dataclasses.dataclass
+@dataclass
 class Taxonomy:
     """
     https://arxiv.org/category_taxonomy
     """
 
-    @dataclasses.dataclass
+    @dataclass
     class cs(metaclass=ArchiveMeta("cs.*")):
         AI = Category(
             id="cs.AI",
@@ -389,7 +389,7 @@ class Taxonomy:
             description="cs.SY is an alias for eess.SY. This section includes theoretical and experimental research covering all facets of automatic control systems. The section is focused on methods of control system analysis and design using tools of modeling, simulation and optimization. Specific areas of research include nonlinear, distributed, adaptive, stochastic and robust control in addition to hybrid and discrete event systems. Application areas include automotive and aerospace control systems, network control, biological systems, multiagent and cooperative control, robotics, reinforcement learning, sensor networks, control of cyber-physical and energy-related systems, and control of computing systems.",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class econ(metaclass=ArchiveMeta("econ.*")):
         EM = Category(
             id="econ.EM",
@@ -416,7 +416,7 @@ class Taxonomy:
             description="Includes theoretical contributions to Contract Theory, Decision Theory, Game Theory, General Equilibrium, Growth, Learning and Evolution, Macroeconomics, Market and Mechanism Design, and Social Choice.",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class eess(metaclass=ArchiveMeta("eess.*")):
         AS = Category(
             id="eess.AS",
@@ -451,7 +451,7 @@ class Taxonomy:
             description="This section includes theoretical and experimental research covering all facets of automatic control systems. The section is focused on methods of control system analysis and design using tools of modeling, simulation and optimization. Specific areas of research include nonlinear, distributed, adaptive, stochastic and robust control in addition to hybrid and discrete event systems. Application areas include automotive and aerospace control systems, network control, biological systems, multiagent and cooperative control, robotics, reinforcement learning, sensor networks, control of cyber-physical and energy-related systems, and control of computing systems.",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class math(metaclass=ArchiveMeta("math.*")):
         AC = Category(
             id="math.AC",
@@ -710,7 +710,7 @@ class Taxonomy:
             description="Applied, computational and theoretical statistics: e.g. statistical inference, regression, time series, multivariate analysis, data analysis, Markov chain Monte Carlo, design of experiments, case studies",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class q_bio(metaclass=ArchiveMeta("q-bio*")):
         # Note that the ArchiveMeta string allows the legacy category "q-bio" without dot "."
         # In other words the unclassified legacy category is effectively included in this archive.
@@ -805,7 +805,7 @@ class Taxonomy:
             description="Blood flow in vessels, biomechanics of bones, electrical waves, endocrine system, tumor growth",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class q_fin(metaclass=ArchiveMeta("q-fin.*")):
         CP = Category(
             id="q-fin.CP",
@@ -880,7 +880,7 @@ class Taxonomy:
             description="Market microstructure, liquidity, exchange and auction design, automated trading, agent-based modeling and market-making",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class stat(metaclass=ArchiveMeta("stat.*")):
         AP = Category(
             id="stat.AP",
@@ -931,7 +931,7 @@ class Taxonomy:
             description="stat.TH is an alias for math.ST. Asymptotics, Bayesian Inference, Decision Theory, Estimation, Foundations, Inference, Testing.",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class astro_ph(metaclass=ArchiveMeta("astro-ph*")):
         # Note that the ArchiveMeta string allows the legacy category "astro-ph" without dot "."
         # In other words the unclassified legacy category is effectively included in this archive.
@@ -994,7 +994,7 @@ class Taxonomy:
             description="White dwarfs, brown dwarfs, cataclysmic variables. Star formation and protostellar systems, stellar astrobiology, binary and multiple systems of stars, stellar evolution and structure, coronas. Central stars of planetary nebulae. Helioseismology, solar neutrinos, production and detection of gravitational radiation from stellar systems",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class cond_mat(metaclass=ArchiveMeta("cond-mat*")):
         # Note that the ArchiveMeta string allows the legacy category "cond-mat" without dot "."
         # In other words the unclassified legacy category is effectively included in this archive.
@@ -1082,7 +1082,7 @@ class Taxonomy:
             description="Superconductivity: theory, models, experiment. Superflow in helium",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class nlin(metaclass=ArchiveMeta("nlin.*")):
         AO = Category(
             id="nlin.AO",
@@ -1125,7 +1125,7 @@ class Taxonomy:
             description="Exactly solvable systems, integrable PDEs, integrable ODEs, Painleve analysis, integrable discrete maps, solvable lattice models, integrable quantum systems",
         )
 
-    @dataclasses.dataclass
+    @dataclass
     class physics(metaclass=ArchiveMeta("physics.*")):
         acc_ph = Category(
             id="physics.acc-ph",
@@ -1588,7 +1588,7 @@ def _get_archives():
 categories_by_id: Dict[str, Category] = _get_categories_by_id(Taxonomy)
 
 
-@dataclasses.dataclass
+@dataclass
 class catalog:
     all_archives = _get_archives()
     all_categories = list(categories_by_id.values())

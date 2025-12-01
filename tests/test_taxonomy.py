@@ -4,6 +4,7 @@ Tests taxonomy structure and category information.
 """
 
 import pytest
+import dataclasses
 from arxivql import Taxonomy as T, Query as Q
 from arxivql.taxonomy import Category
 
@@ -50,6 +51,22 @@ class TestCategoryDataclass:
         assert cat.archive_id == "astro-ph"
         assert cat.archive_name == "Astrophysics"
         assert "Cosmic ray" in cat.description
+
+    def test_category_is_immutable(self):
+        """Category instances are frozen dataclasses and cannot be mutated."""
+        cat = T.cs.AI
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            cat.name = "Changed"
+
+    def test_category_is_hashable(self):
+        """Category instances are hashable and can be used in sets/dicts."""
+        cat1 = T.cs.AI
+        cat2 = T.cs.AI
+        # Same logical category should not create duplicate entries in a set
+        s = {cat1, cat2}
+        assert len(s) == 1
+        assert cat1 in s
+        assert cat2 in s
 
 
 class TestTaxonomyArchives:
