@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "arxivql"
-version = "1.3.2"
+version = "1.3.3"
 description = "A pythonic query builder for arXiv search API"
 authors = ["Roman Zubov <romazu@protonmail.com>"]
 license = "MIT"

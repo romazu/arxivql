@@ -62,12 +62,12 @@ class Query:
             raise ValueError("There is no ORNOT operator in the arXiv API")
         return Query(f"({self.content} OR {other.content})")
 
-    def __rand__(self, other: Union[str, "Query"]):
+    def __rand__(self, other: Union[str]):
         if isinstance(other, str):
             return Query.from_raw_string(other) & self
         return NotImplemented
 
-    def __ror__(self, other: Union[str, "Query"]):
+    def __ror__(self, other: Union[str]):
         if isinstance(other, str):
             return Query.from_raw_string(other) | self
         return NotImplemented
@@ -84,7 +84,7 @@ class Query:
 
     def _validate_negation(self):
         if self.negated:
-            raise ValueError("There is no standalone negation operator, only combined ANDNOT")
+            raise ValueError("There is no standalone negation operator in the arXiv API, only combined ANDNOT")
 
     @staticmethod
     def _validate_term(term: Stringable, quote):

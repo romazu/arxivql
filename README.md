@@ -6,7 +6,7 @@
 Working with arXiv data involves several recurring challenges:
 building syntactically correct search queries, navigating the category taxonomy with its legacy and modern schemes,
 and parsing article identifiers that come in multiple formats.
-**arxivql** brings these arXiv-specific structures into Python as first-class objects.
+The **arxivql** library brings these arXiv-specific structures into Python as first-class objects.
 
 **Queries** — Build valid arXiv search strings from Python objects using a simple DSL, without memorizing field prefixes or logical operators.
 
@@ -41,7 +41,7 @@ pip install arxivql
 ## Query
 The `Query` class provides constructors for all supported arXiv fields and methods to combine them.
 
-See the [arxiv documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for the official Search API details.
+See the [arXiv documentation](https://info.arxiv.org/help/api/user-manual.html#query_details) for the official Search API details.
 
 See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for API behavior details and caveats.
 
@@ -109,7 +109,7 @@ Q.submitted_date("2023", "202406011212")
 ```
 
 ### Logical Operations
-Complex queries can be constructed by combining field filters using regular python logic operators:
+Complex queries can be constructed by combining field filters using regular Python logical operators:
 ```python
 a1 = Q.author("Ilya Sutskever")
 a2 = Q.author(("Geoffrey", "Hinton"))
@@ -145,8 +145,8 @@ print("machine learning" & Q.category("cs.AI"))
 
 The following operations raise exceptions due to arXiv API limitations:
 ```python
-~a1       # Error: standalone NOT operator not supported
-a1 | ~a2  # Error: ORNOT operator not supported
+~a1       # Error: There is no standalone negation operator in the arXiv API, only combined ANDNOT
+a1 | ~a2  # Error: There is no ORNOT operator in the arXiv API
 ```
 
 ### Wildcards
@@ -154,7 +154,7 @@ Wildcards (`?` and `*`) can be used in queries as usual, but there are some impo
 See the [arXiv Search API behavior](#important-arxiv-search-api-behavior) section for more details.
 
 ### Usage with Python arXiv Client
-Constructed queries can be directly used in [python arXiv API wrapper](https://pypi.org/project/arxiv):
+Constructed queries can be directly used in the [Python arXiv API wrapper](https://pypi.org/project/arxiv):
 
 ```python
 # pip install arxiv
@@ -471,7 +471,8 @@ See [arXiv identifiers](https://info.arxiv.org/help/arxiv_identifier.html) offic
   Examples:
      - `cat:(cs.AI hep-th)` matches articles with either category
      - `cat:(cs.* hep-th)` functions as expected with wildcards
-  3. Note that several categories inside `cat` parentheses are okay.
+
+     Note that several categories inside `cat` parentheses are okay.
 
 - Explicit operators in field scopes are supported:
   `ti:(some OR words)` and `ti:(some AND words)` are valid.
@@ -492,7 +493,7 @@ See [arXiv identifiers](https://info.arxiv.org/help/arxiv_identifier.html) offic
     arxiv.Search(id_list=["2303.08774v99"])  # -> obscure error
     ```
 
-- Empty query matches all article, i.e., no filtering is applied.
+- Empty query matches all articles, i.e., no filtering is applied.
 
 - There are some other unintuitive API quirks:
   - Query `all:-` (or just `-`) matches actual "-" character across different article fields. But `ti:-` and `abs:-` match nothing.
@@ -516,7 +517,7 @@ Example: In `astro-ph.HE`, the hierarchy is:
 <img src="https://raw.githubusercontent.com/romazu/arxivql/main/assets/images/taxonomy_astro-ph.HE-fs8.png" width="35%">
 
 ## Group
-Groups constitute the top level of taxonomy, currently including:
+Groups constitute the top level of the taxonomy, currently including:
 - Computer Science
 - Economics
 - Electrical Engineering and Systems Science
@@ -532,13 +533,13 @@ Archives form the intermediate level, with each belonging to exactly one group.
 Special cases:
 1. Single-archive groups:
    - When a group contains only one archive, they share the same name
-   - Example: `q-fin.CP` category has `Quantitative Finance` → `Quantitative Finance` → `Computational Finance`
+   - Example: the hierarchy of the `q-fin.CP` category is `Quantitative Finance` → `Quantitative Finance` → `Computational Finance`
 
    <img src="https://raw.githubusercontent.com/romazu/arxivql/main/assets/images/taxonomy_q-fin.CP-fs8.png" width="35%">
 
 2. Single-category archives:
    - When an archive contains only one category, the archive name is omitted from the identifier
-   - Example: `hep-th` category has `Physics` → `High Energy Physics - Theory` → `High Energy Physics - Theory`
+   - Example: the hierarchy of the `hep-th` category is `Physics` → `High Energy Physics - Theory` → `High Energy Physics - Theory`
 
    <img src="https://raw.githubusercontent.com/romazu/arxivql/main/assets/images/taxonomy_hep-th-fs8.png" width="35%">
 
